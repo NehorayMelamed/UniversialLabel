@@ -57,3 +57,4 @@ doc/_build/
 
 # Ignore weights and checkpoints directory
 /ModelsFactory/checkpoints/
+keys/secret_key.txt
