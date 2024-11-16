@@ -1,0 +1,15 @@
+for the SAM2 clone(or !better download the zip) the repo - https://github.com/facebookresearch/sam2.git and install from it like the readme - pip install -e .
+
+
+for grounding dino use the git base on the  --> https://github.com/IDEA-Research/GroundingDINO
+
+cd into /home/nehoray/PycharmProjects/UniversaLabeler/ModelsFactory/Detection/GroundingDINO_workspace/git_workspace/GroundingDINO
+run pip install -e .
+cd into /home/nehoray/PycharmProjects/UniversaLabeler/ModelsFactory/Detection/GroundingDINO_workspace/git_workspace/GroundingDINO/weights
+run wget -q https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
+ensure the pth installed as expected
+
+remmember to add the variables name do it by extracting from the conflicts cpp builds
+
+please note to first build via the rust script the pip -e pacakegs and only then the other,
+do not use the docker! its crash the cua for some reson

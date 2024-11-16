@@ -1,0 +1,59 @@
+# Ignore image files
+*.png
+*.jpg
+*.jpeg
+*.tif
+*.tiff
+*.gif
+*.bmp
+
+# Ignore model files
+*.pt
+*.pth
+*.ckpt
+
+# Ignore Python cache and environment files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+*.log
+
+# Ignore environment and config files
+.env
+*.env
+*.yaml
+*.yml
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.iml
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Ignore generated documentation
+/build/
+doc/_build/
+
+# Ignore compiled object files
+*.o
+*.obj
+
+# Ignore compiled Python
+*.pyc
+
+# Ignore test result directories
+/test_workspace/unit_test_results_*
+
+# Ignore weights and checkpoints directory
+/ModelsFactory/checkpoints/

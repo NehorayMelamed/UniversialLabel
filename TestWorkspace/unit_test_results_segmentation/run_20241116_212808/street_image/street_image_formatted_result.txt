@@ -1,0 +1,4 @@
+Final Combined Result:
+Masks: 6
+Labels: ['unknown', 'greenery', 'pavement', 'road', 'buildings', 'water']
+Scores: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]

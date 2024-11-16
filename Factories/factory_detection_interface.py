@@ -1,0 +1,53 @@
+from common.model_name_registry import ModelNameRegistryDetection, ConfigParameters
+from ModelsFactory.Detection.GroundingDINO_workspace.grounding_dino_model import GroundingDINO_Model
+from ModelsFactory.Detection.YOLO_WORLD_workspace.yolo_world_model import YOLOWorld_Model
+from ModelsFactory.Detection.Alfred_detection_workspace.alfred_detection_nodel import AlfredDetectionModel
+from ModelsFactory.Detection.Waldo_workspace.waldo_model_detection import WaldoDetectionModel
+from ModelsFactory.Detection.detection_base_model import DetectionBaseModel
+from typing import Union
+
+
+class FactoryDetectionInterface:
+    """
+    FactoryDetectionInterface creates detection models based on model names from ModelNameRegistry.
+    """
+
+    def create_model(self, model_type: Union[ModelNameRegistryDetection, str]) -> DetectionBaseModel:
+        """
+        Create a detection model based on the provided model type.
+
+        Parameters:
+        - model_type (Union[ModelNameRegistry, str]): The type of model to create.
+
+        Returns:
+        - DetectionBaseModel: The instantiated model.
+
+        Raises:
+        - ValueError: If the model type is not valid.
+        """
+        if isinstance(model_type, str):
+            model_type = ModelNameRegistryDetection(model_type)
+
+        if model_type == ModelNameRegistryDetection.DINO:
+            return GroundingDINO_Model(model_config_path=ConfigParameters.GROUNDING_DINO_config.value, model_checkpoint_path=ConfigParameters.GROUNDING_DINO_pth.value)  # Replace with actual paths
+        elif model_type == ModelNameRegistryDetection.YOLO_WORLD:
+            return YOLOWorld_Model(model_path=ConfigParameters.YOLO_WORLD_pt.value)
+        elif model_type == ModelNameRegistryDetection.YOLO_ALFRED:
+            return AlfredDetectionModel(model_path=ConfigParameters.YOLO_ALFRED_pt.value)
+        elif model_type == ModelNameRegistryDetection.WALDO:
+            return WaldoDetectionModel(model_path=ConfigParameters.YOLO_WALDO_pt.value)
+        elif model_type == ModelNameRegistryDetection.YOLO_REGEV:
+            return WaldoDetectionModel(model_path=ConfigParameters.YOLO_REGEV_pt.value)
+        else:
+            raise ValueError(f"Unknown detection model type: {model_type}")
+
+    def available_models(self) -> list:
+        """
+        Return a list of available detection model types.
+
+        Returns:
+        - list: A list of model names available in the ModelNameRegistry.
+        """
+        return [model.value for model in ModelNameRegistryDetection]
+
+

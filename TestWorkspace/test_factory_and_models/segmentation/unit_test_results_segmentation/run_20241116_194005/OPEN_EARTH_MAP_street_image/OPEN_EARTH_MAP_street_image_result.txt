@@ -1,0 +1,3 @@
+Model: OPEN_EARTH_MAP
+Image: street_image
+Labels: ['unknown', 'greenery', 'pavement', 'road', 'buildings', 'water']

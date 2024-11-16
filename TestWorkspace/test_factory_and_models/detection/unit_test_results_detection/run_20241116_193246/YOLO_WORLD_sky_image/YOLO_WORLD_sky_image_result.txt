@@ -1,0 +1,5 @@
+Model: YOLO_WORLD
+Image: sky_image
+Bounding Boxes: []
+Labels: []
+Scores: []
