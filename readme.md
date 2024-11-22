@@ -183,6 +183,12 @@ class ModelNameRegistrySegmentation(Enum):
 - All checkpoint files can be downloaded by specifying a **SECRET_KEY**.
 - Ensure that your **SECRET_KEY** is saved to `UniversaLabeler/keys/secret_key.txt` to allow access to encrypted checkpoints.
 
+## New and Last Updates
+- nehoray - support getting dict of models and their classes via get_available_models_with_classes function fix regev loading in factory_detection_interface.py
+- nehoray - update the req and the readme.md
+- nehoray - null
+
+
 ## Planned Features
 
 - **Model Enhancements**:
