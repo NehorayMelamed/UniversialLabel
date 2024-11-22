@@ -56,5 +56,6 @@ doc/_build/
 /test_workspace/unit_test_results_*
 
 # Ignore weights and checkpoints directory
-/ModelsFactory/checkpoints/
+ModelsFactory/checkpoints/
 keys/secret_key.txt
+Segmentation_Models_Factory/
