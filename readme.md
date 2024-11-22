@@ -46,9 +46,10 @@ Below is the list of available models in the UniversaLabeler project, along with
 
 ### Installing the Environment
 
+
 1. Clone the repository:
     ```bash
-    git clone <repo_url> UniversaLabeler
+    git clone https://github.com/NehorayMelamed/UniversialLabel.git
     ```
 
 2. Update the `BASE_PROJECT_DIRECTORY_PATH` in `common/general_parameters.py`:
@@ -57,14 +58,28 @@ Below is the list of available models in the UniversaLabeler project, along with
     ```
 
 3. Install all required packages:
-    ```bash
+    1. Install Torch base on your OS (https://pytorch.org/get-started/locally/)
+    2. install other packages
+   ```bash
     pip install -r requirements.txt
     ```
+    
+4. ### Install GroundingDINO 
+    (base on their installation guid - https://github.com/IDEA-Research/GroundingDIN )
+    1. cd ModelsFactory/Detection/GroundingDINO_workspace/git_workspace/GroundingDINO/
+    2. pip install -e .
+
+
+5. Install Mega cli 
+    base on their website
+
+    https://mega.io/cmd#download
+
 
 ### Downloading Model Weights
 
 - Place your **SECRET_KEY** in `UniversaLabeler/keys/secret_key.txt`.
-- Run the script to download model weights:
+- Run the script to download model weights and extract them into the right place:
     ```bash
     python UniversaLabeler/setup/download_pts.py
     ```
@@ -187,3 +202,4 @@ class ModelNameRegistrySegmentation(Enum):
 
 Feel free to add more diagrams and visual aids to understand the project flow better, such as a flowchart showing how data is processed from the initial image input to final labeling results.
 """
+### Feel free to make a contant with me - Nehoray Melamed - +972 953 532 7656

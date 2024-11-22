@@ -1,1 +1,5 @@
-mega.py
+numpy>=1.21.0
+opencv-python>=4.5.3
+ultralytics
+pillow>=8.2.0
+kornia>=0.6.0
