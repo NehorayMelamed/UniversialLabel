@@ -5,7 +5,7 @@ from ultralytics import YOLOWorld
 from typing import List, Dict, Any
 import numpy as np
 
-from common.model_name_registry import ConfigParameters, ModelNameRegistryDetection
+from common.model_name_registry import ConfigParameters, ModelNameRegistryDetection, PROMPT_MODEL
 
 
 class YOLOWorld_Model(DetectionBaseModel):
@@ -96,6 +96,15 @@ class YOLOWorld_Model(DetectionBaseModel):
 
         return formatted_result
 
+    @staticmethod
+    def get_available_classes() -> str:
+        """
+        Return a notice that this model uses a free prompt for object detection.
+
+        Returns:
+        - str: Notice string.
+        """
+        return PROMPT_MODEL
 
 # simple test
 

@@ -10,6 +10,13 @@ class FactorySegmentationInterface(FactoryModelInterface):
     It returns segmentation models such as GroundingDINO, SAM2, and OpenEarthMapModel.
     """
 
+    def __init__(self):
+        model_mapping = {
+            ModelNameRegistrySegmentation.OPEN_EARTH_MAP.value: OpenEarthMapModel,
+            # ModelNameRegistrySegmentation.SAM2.value: SAM2Model,
+        }
+        super().__init__(model_mapping)
+
     def create_model(self, model_type: str) -> SegmentationBaseModel:
         """
         Create and return a segmentation model based on the model_type string.

@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from PIL import Image, ImageDraw, ImageFont
 import groundingdino.datasets.transforms as T
-from common.model_name_registry import ModelNameRegistryDetection
+from common.model_name_registry import ModelNameRegistryDetection, PROMPT_MODEL
 from groundingdino.models import build_model
 from groundingdino.util import box_ops
 from groundingdino.util.slconfig import SLConfig
@@ -197,7 +197,7 @@ class GroundingDINO_Model(DetectionBaseModel):
         Returns:
         - str: Notice string.
         """
-        return "This model uses a free prompt for object detection."
+        return PROMPT_MODEL
 
 # Simple usage example of GroundingDINO_Model
 if __name__ == "__main__":

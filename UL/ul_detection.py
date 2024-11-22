@@ -178,9 +178,13 @@ if __name__ == "__main__":
         class_priorities={},
         model_priorities={ModelNameRegistryDetection.WALDO: 1, ModelNameRegistryDetection.YOLO_ALFRED: 3, ModelNameRegistryDetection.YOLO_WORLD: 2},
         use_nms=True,
-        sahi_models=[ModelNameRegistryDetection.YOLO_WORLD],
+        sahi_models=[ModelNameRegistryDetection.YOLO_WORLD], #ToDo suupporrt setting parameters
         model_names=[ModelNameRegistryDetection.YOLO_WORLD, ModelNameRegistryDetection.DINO, ModelNameRegistryDetection.YOLO_ALFRED, ModelNameRegistryDetection.WALDO]
     )
+
+    # Print available models and their classes
+    print(ul_detection.factory.get_available_models_with_classes())
+
 
     # Load the models
     ul_detection.load_models()

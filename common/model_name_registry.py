@@ -46,3 +46,5 @@ class ConfigParameters(Enum):
         - bool: True if the value is a valid model name, False otherwise.
         """
         return value in cls._value2member_map_
+
+PROMPT_MODEL = "free prompt"

@@ -175,6 +175,8 @@ if __name__ == "__main__":
         use_segselector=True,  # Using SegSelector to combine results
         model_names=[ModelNameRegistrySegmentation.OPEN_EARTH_MAP.value]
     )
+    # Print available models and their classes
+    print(ul_segmentation.factory.get_available_models_with_classes())
 
     # Load the models
     ul_segmentation.load_models()

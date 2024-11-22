@@ -1,3 +1,5 @@
+from Factories.factory_model_interface import FactoryModelInterface
+from ModelsFactory.Detection.REGEV_workspace.regev_model_detection import RegevDetectionModel
 from common.model_name_registry import ModelNameRegistryDetection, ConfigParameters
 from ModelsFactory.Detection.GroundingDINO_workspace.grounding_dino_model import GroundingDINO_Model
 from ModelsFactory.Detection.YOLO_WORLD_workspace.yolo_world_model import YOLOWorld_Model
@@ -7,10 +9,20 @@ from ModelsFactory.Detection.detection_base_model import DetectionBaseModel
 from typing import Union
 
 
-class FactoryDetectionInterface:
+class FactoryDetectionInterface(FactoryModelInterface):
     """
     FactoryDetectionInterface creates detection models based on model names from ModelNameRegistry.
     """
+    def __init__(self):
+        # Map model names to their corresponding class implementations
+        model_mapping = {
+            ModelNameRegistryDetection.DINO.value: GroundingDINO_Model,
+            ModelNameRegistryDetection.YOLO_WORLD.value: YOLOWorld_Model,
+            ModelNameRegistryDetection.YOLO_ALFRED.value: AlfredDetectionModel,
+            ModelNameRegistryDetection.WALDO.value: WaldoDetectionModel,
+            ModelNameRegistryDetection.YOLO_REGEV.value: RegevDetectionModel,
+        }
+        super().__init__(model_mapping)
 
     def create_model(self, model_type: Union[ModelNameRegistryDetection, str]) -> DetectionBaseModel:
         """
@@ -37,7 +49,7 @@ class FactoryDetectionInterface:
         elif model_type == ModelNameRegistryDetection.WALDO:
             return WaldoDetectionModel(model_path=ConfigParameters.YOLO_WALDO_pt.value)
         elif model_type == ModelNameRegistryDetection.YOLO_REGEV:
-            return WaldoDetectionModel(model_path=ConfigParameters.YOLO_REGEV_pt.value)
+            return RegevDetectionModel(model_path=ConfigParameters.YOLO_REGEV_pt.value)
         else:
             raise ValueError(f"Unknown detection model type: {model_type}")
 
@@ -49,5 +61,4 @@ class FactoryDetectionInterface:
         - list: A list of model names available in the ModelNameRegistry.
         """
         return [model.value for model in ModelNameRegistryDetection]
-
 
