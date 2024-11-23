@@ -55,7 +55,12 @@ doc/_build/
 # Ignore test result directories
 /test_workspace/unit_test_results_*
 
+new_models_workspace
+
 # Ignore weights and checkpoints directory
 ModelsFactory/checkpoints/
 keys/secret_key.txt
 Segmentation_Models_Factory/
+!data/tested_image/detection/from_sky.jpeg
+!data/tested_image/detection/street.png
+!data/tested_image/segmentation/from_sky.jpeg

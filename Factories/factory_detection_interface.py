@@ -1,5 +1,6 @@
 from Factories.factory_model_interface import FactoryModelInterface
 from ModelsFactory.Detection.REGEV_workspace.regev_model_detection import RegevDetectionModel
+from ModelsFactory.Detection.facebook_detr_workspace.dert_detection_model import DetrDetectionModel
 from common.model_name_registry import ModelNameRegistryDetection, ConfigParameters
 from ModelsFactory.Detection.GroundingDINO_workspace.grounding_dino_model import GroundingDINO_Model
 from ModelsFactory.Detection.YOLO_WORLD_workspace.yolo_world_model import YOLOWorld_Model
@@ -21,6 +22,8 @@ class FactoryDetectionInterface(FactoryModelInterface):
             ModelNameRegistryDetection.YOLO_ALFRED.value: AlfredDetectionModel,
             ModelNameRegistryDetection.WALDO.value: WaldoDetectionModel,
             ModelNameRegistryDetection.YOLO_REGEV.value: RegevDetectionModel,
+            ModelNameRegistryDetection.DETR.value: DetrDetectionModel,
+
         }
         super().__init__(model_mapping)
 
@@ -29,7 +32,7 @@ class FactoryDetectionInterface(FactoryModelInterface):
         Create a detection model based on the provided model type.
 
         Parameters:
-        - model_type (Union[ModelNameRegistry, str]): The type of model to create.
+        - model_type (Union[ModelNameRegistryDetection, str]): The type of model to create.
 
         Returns:
         - DetectionBaseModel: The instantiated model.
@@ -41,7 +44,10 @@ class FactoryDetectionInterface(FactoryModelInterface):
             model_type = ModelNameRegistryDetection(model_type)
 
         if model_type == ModelNameRegistryDetection.DINO:
-            return GroundingDINO_Model(model_config_path=ConfigParameters.GROUNDING_DINO_config.value, model_checkpoint_path=ConfigParameters.GROUNDING_DINO_pth.value)  # Replace with actual paths
+            return GroundingDINO_Model(
+                model_config_path=ConfigParameters.GROUNDING_DINO_config.value,
+                model_checkpoint_path=ConfigParameters.GROUNDING_DINO_pth.value
+            )
         elif model_type == ModelNameRegistryDetection.YOLO_WORLD:
             return YOLOWorld_Model(model_path=ConfigParameters.YOLO_WORLD_pt.value)
         elif model_type == ModelNameRegistryDetection.YOLO_ALFRED:
@@ -50,6 +56,9 @@ class FactoryDetectionInterface(FactoryModelInterface):
             return WaldoDetectionModel(model_path=ConfigParameters.YOLO_WALDO_pt.value)
         elif model_type == ModelNameRegistryDetection.YOLO_REGEV:
             return RegevDetectionModel(model_path=ConfigParameters.YOLO_REGEV_pt.value)
+        elif model_type == ModelNameRegistryDetection.DETR:  # Add DETR handling
+            return DetrDetectionModel(processor_path=ConfigParameters.DERT_MODEL.value,
+                                    model_path=ConfigParameters.DERT_PROCESSOR.value)
         else:
             raise ValueError(f"Unknown detection model type: {model_type}")
 
