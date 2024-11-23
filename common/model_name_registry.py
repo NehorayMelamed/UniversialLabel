@@ -12,6 +12,7 @@ class ModelNameRegistryDetection(Enum):
     WALDO = "WALDO"
     YOLO_REGEV = "YOLO_REGEV"
     DETR = "DETR"  # New entry
+    GOOGLE_VISION = "GOOGLE_VISION"  # New entry for Google Vision model
 
 class ModelNameRegistrySegmentation(Enum):
     # Segmentation Models
@@ -36,6 +37,7 @@ class ConfigParameters(Enum):
     DERT_PROCESSOR =os.path.join(WEIGHTS_PATH, "facebook_detr", "models--facebook--detr-resnet-50","snapshots","70120ba84d68ca1211e007c4fb61d0cd5424be54" )
     OPEN_EARTH_MAP_MODEL_DIR = os.path.join(WEIGHTS_PATH,)
     OPEN_EARTH_MAP_MODEL_NAME = "open_earth_map_model.pth"
+    GOOGLE_VISION_KEY_API = os.path.join(os.path.join(BASE_PROJECT_DIRECTORY_PATH, "keys", "google_vision_api_key", os.listdir(os.path.join(BASE_PROJECT_DIRECTORY_PATH, "keys", "google_vision_api_key"))[0]) )
 
     @classmethod
     def has_value(cls, value):

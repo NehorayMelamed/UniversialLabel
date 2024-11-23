@@ -1,6 +1,8 @@
 from Factories.factory_model_interface import FactoryModelInterface
 from ModelsFactory.Detection.REGEV_workspace.regev_model_detection import RegevDetectionModel
 from ModelsFactory.Detection.facebook_detr_workspace.dert_detection_model import DetrDetectionModel
+from ModelsFactory.Detection.google_vision_api_workspace.google_vision_api_detection_model import \
+    GoogleVisionDetectionModel
 from common.model_name_registry import ModelNameRegistryDetection, ConfigParameters
 from ModelsFactory.Detection.GroundingDINO_workspace.grounding_dino_model import GroundingDINO_Model
 from ModelsFactory.Detection.YOLO_WORLD_workspace.yolo_world_model import YOLOWorld_Model
@@ -23,6 +25,7 @@ class FactoryDetectionInterface(FactoryModelInterface):
             ModelNameRegistryDetection.WALDO.value: WaldoDetectionModel,
             ModelNameRegistryDetection.YOLO_REGEV.value: RegevDetectionModel,
             ModelNameRegistryDetection.DETR.value: DetrDetectionModel,
+            ModelNameRegistryDetection.GOOGLE_VISION.value: GoogleVisionDetectionModel  # New entry for Google Vision
 
         }
         super().__init__(model_mapping)
@@ -59,6 +62,9 @@ class FactoryDetectionInterface(FactoryModelInterface):
         elif model_type == ModelNameRegistryDetection.DETR:  # Add DETR handling
             return DetrDetectionModel(processor_path=ConfigParameters.DERT_MODEL.value,
                                     model_path=ConfigParameters.DERT_PROCESSOR.value)
+        elif model_type == ModelNameRegistryDetection.GOOGLE_VISION:
+            return GoogleVisionDetectionModel(credential_path=ConfigParameters.GOOGLE_VISION_KEY_API.value)
+
         else:
             raise ValueError(f"Unknown detection model type: {model_type}")
 
