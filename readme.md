@@ -222,4 +222,4 @@ mkdir google_vision_api_key
 
 Feel free to add more diagrams and visual aids to understand the project flow better, such as a flowchart showing how data is processed from the initial image input to final labeling results.
 """
-### Feel free to make a contant with me - Nehoray Melamed - +972 953 532 7656
+### Feel free to make a contant with me - Nehoray Melamed - +972 053 532 7656
