@@ -16,23 +16,23 @@ UniversaLabeler is a project that provides a modular and extensible platform for
 
 Below is the list of available models in the UniversaLabeler project, along with their type:
 
-| Model Name     | Type        |
-| :------------: | :---------: |
-| DINO           | prompt      |
-| YOLO_WORLD     | prompt      |
-| YOLO_ALFRED    | classes     |
-| WALDO          | prompt      |
-| YOLO_REGEV     | classes     |
-| OPEN_EARTH_MAP | classes     |
-| SAM2           | none        |
+|   Model Name   | Class/prompt |  model type  |
+|:--------------:|:------------:|:------------:|
+|      DINO      |    prompt    |  Detection   |
+|   YOLO_WORLD   |    prompt    |  Detection   |
+|  YOLO_ALFRED   |   classes    |  Detection   |
+|     WALDO      |    prompt    |  Detection   |
+|   YOLO_REGEV   |   classes    |  Detection   |
+| OPEN_EARTH_MAP |   classes    |   Segmentation    |
+|      SAM2      |     none     | Segmentation |
+| google vision  |    prompt    |  Detection   |
+| facebook dert  |     prompt     |  Detection   |
 
 ### Explanation:
 
-**DINO, YOLO_WORLD, WALDO**:
-- These models use **prompts**, which means they expect descriptive text as input (e.g., "car," "person," "building") to define what objects to detect.
+- The models use **prompts**, which means they expect descriptive text as input (e.g., "car," "person," "building") to define what objects to detect.
 
-**YOLO_ALFRED, YOLO_REGEV, OPEN_EARTH_MAP**:
-- These models use **classes**, meaning they are predefined with specific object categories and do not require a text prompt for detection. Instead, they look for the categories they were trained to recognize (e.g., vehicles, buildings, greenery).
+- The models use **classes**, meaning they are predefined with specific object categories and do not require a text prompt for detection. Instead, they look for the categories they were trained to recognize (e.g., vehicles, buildings, greenery).
 
 **SAM2**:
 - This model is labeled as **none**, implying that it does not utilize prompts or classes in the typical manner. It might instead be used for segmentation tasks without specific object prompts.
@@ -182,6 +182,20 @@ class ModelNameRegistrySegmentation(Enum):
 
 - All checkpoint files can be downloaded by specifying a **SECRET_KEY**.
 - Ensure that your **SECRET_KEY** is saved to `UniversaLabeler/keys/secret_key.txt` to allow access to encrypted checkpoints.
+    
+## Using of :
+### Google api 
+1. Generate the key for the "Service Account Key" of google  for *vision api* from your project, or use our Key.  (https://cloud.google.com/iam/docs/keys-create-delete)
+2. create a directory inside the keys directory with the name - google_vision_api_key 
+```                                         
+cd keys   
+```     
+```                                         
+mkdir google_vision_api_key 
+```      
+3. and place there the json key from google
+
+
 
 ## New and Last Updates
 - nehoray - support getting dict of models and their classes via get_available_models_with_classes function fix regev loading in factory_detection_interface.py
