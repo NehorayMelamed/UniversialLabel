@@ -58,8 +58,8 @@ class FactoryDetectionInterface(FactoryModelInterface):
             )
         elif model_type == ModelNameRegistryDetection.OPENGEOS:
             return GroundingDINO_Model(
-                model_config_path=ConfigParameters.GROUNDING_DINO_config.value,
-                model_checkpoint_path=ConfigParameters.GROUNDING_DINO_pth.value,
+                model_config_path=ConfigParameters.GROUNDING_DINO_OPENGEOS_config.value,
+                model_checkpoint_path=ConfigParameters.GROUNDING_DINO_OPENGEOS_pth.value,
                 model_name=ModelNameRegistryDetection.OPENGEOS.value
             )
         elif model_type == ModelNameRegistryDetection.YOLO_WORLD:
