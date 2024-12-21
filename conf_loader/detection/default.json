@@ -1,0 +1,72 @@
+{
+  "metadata": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "author": "Nehoray melamed",
+    "date": "",
+    "conf_name": "default ul detection from sky view",
+    "description": "",
+    "version": ""
+
+
+  },
+  "ul_detection": {
+    "source": {
+      "input": {
+        "base_input_directory_path": "path to base dir of images, or with directories of images"
+      },
+      "output": {
+        "base_output_directory_path": "path so the result will be saved",
+        "results_formats": "text_labels_and_original"
+      },
+      "logger": {
+        "log_level": "error",
+        "log_output_path": "path so the log file will be save"
+      }
+    },
+
+    "pre_process": {
+      "sahi": {
+        "enable": true,
+        "parameters": {
+          "model_input_dimensions": [
+            640,
+            640
+          ],
+          "slice_dimensions": [
+            0,
+            0
+          ],
+          "detection_conf_threshold": 0.5,
+          "transforms": [],
+          "zoom_factor": 1.0,
+          "required_overlap_height_ratio": 0.2,
+          "required_overlap_width_ratio": 0.2
+        }
+      },
+      "auto_model_selector": {
+        "enable": false
+      }
+    },
+    "post_process":{
+      "nms": {
+        "enable": true,
+        "class_priority": {},
+        "models_priority": {}
+      },
+      "class_cleaner": {
+        "enable": false
+      },
+
+    "on_running": {
+      "strid_images": 1,
+      "save_current_state": true,
+      "continue_from_last_state": false
+      }
+    },
+    "processing": {
+      "classes": ["car","bus"],
+      "models": ["dino", ""]
+    }
+
+  }
+}

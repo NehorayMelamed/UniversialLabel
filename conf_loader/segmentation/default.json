@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "author": "Nehoray Melamed",
+    "date": "",
+    "conf_name": "default ul segmentation from sky view",
+    "description": "",
+    "version": ""
+
+  },
+  "ul_segmentation": {
+    "source": {
+      "input": {
+        "base_input_directory_path": "path to base dir of images, or with directories of images"
+      },
+      "output": {
+        "base_output_directory_path": "path so the result will be saved",
+        "results_formats": "text_labels_and_original"
+      },
+      "logger": {
+        "log_level": "error",
+        "log_output_path": "path so the log file will be save"
+      }
+    },
+    "pre_process": {
+      "auto_model_selector":
+        {
+        "enable": false
+      }
+    },
+    "post_process": {
+      "mask_combiner": {
+        "enable": true,
+        "class_priority": {},
+        "models_priority": {}
+      },
+      "class_cleaner": {
+        "enable": false
+      }
+    },
+
+    "processing": {
+      "classes": ["grass","water"],
+      "models": ["open_earth_map"]
+    },
+
+    "general_control": {
+      "strid_images": 1,
+      "save_current_state": true,
+      "continue_from_last_state": false
+      }
+  }
+}

@@ -1,0 +1,241 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "author": {
+          "type": "string",
+          "description": "Name of the author"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date when the configuration was created"
+        },
+        "conf_name": {
+          "type": "string",
+          "description": "Name of the configuration"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the configuration"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(\\d+\\.\\d+\\.\\d+)?$",
+          "description": "Version number in semantic versioning format (e.g., 1.0.0)"
+        }
+      },
+      "required": ["author", "conf_name"]
+    },
+    "ul_detection": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "base_input_directory_path": {
+                  "type": "string",
+                  "description": "Path to the base directory of images, or with directories of images"
+                }
+              },
+              "required": ["base_input_directory_path"]
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "base_output_directory_path": {
+                  "type": "string",
+                  "description": "Path where results will be saved"
+                },
+                "results_formats": {
+                  "type": "string",
+                  "enum": ["text_labels_and_original", "text_labels_only", "original_only"],
+                  "description": "Format of the output results"
+                }
+              },
+              "required": ["base_output_directory_path", "results_formats"]
+            },
+            "logger": {
+              "type": "object",
+              "properties": {
+                "log_level": {
+                  "type": "string",
+                  "enum": ["error", "warning", "info", "debug"],
+                  "description": "Log level for the logger"
+                },
+                "log_output_path": {
+                  "type": "string",
+                  "description": "Path to save the log file"
+                }
+              },
+              "required": ["log_level", "log_output_path"]
+            }
+          },
+          "required": ["input", "output", "logger"]
+        },
+        "pre_process": {
+          "type": "object",
+          "properties": {
+            "sahi": {
+              "type": "object",
+              "properties": {
+                "enable": {
+                  "type": "boolean",
+                  "description": "Enable or disable SAHI pre-processing"
+                },
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "model_input_dimensions": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "slice_dimensions": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "detection_conf_threshold": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "transforms": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "zoom_factor": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "required_overlap_height_ratio": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "required_overlap_width_ratio": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  },
+                  "required": ["model_input_dimensions", "slice_dimensions", "detection_conf_threshold"]
+                }
+              },
+              "required": ["enable", "parameters"]
+            },
+            "auto_model_selector": {
+              "type": "object",
+              "properties": {
+                "enable": {
+                  "type": "boolean",
+                  "description": "Enable or disable automatic model selection"
+                }
+              },
+              "required": ["enable"]
+            }
+          },
+          "required": ["sahi", "auto_model_selector"]
+        },
+        "post_process": {
+          "type": "object",
+          "properties": {
+            "nms": {
+              "type": "object",
+              "properties": {
+                "enable": {
+                  "type": "boolean",
+                  "description": "Enable or disable Non-Maximum Suppression"
+                },
+                "class_priority": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "description": "Class priority for NMS"
+                  }
+                },
+                "models_priority": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "description": "Model priority for NMS"
+                  }
+                }
+              },
+              "required": ["enable"]
+            },
+            "class_cleaner": {
+              "type": "object",
+              "properties": {
+                "enable": {
+                  "type": "boolean",
+                  "description": "Enable or disable class cleaning"
+                }
+              },
+              "required": ["enable"]
+            }
+          },
+          "required": ["nms", "class_cleaner"]
+        },
+        "processing": {
+          "type": "object",
+          "properties": {
+            "classes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Classes to be processed"
+            },
+            "models": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Models to be used for detection"
+            }
+          },
+          "required": ["classes", "models"]
+        },
+        "general_control": {
+          "type": "object",
+          "properties": {
+            "strid_images": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Stride for processing images"
+            },
+            "save_current_state": {
+              "type": "boolean",
+              "description": "Save the current processing state"
+            },
+            "continue_from_last_state": {
+              "type": "boolean",
+              "description": "Continue processing from the last saved state"
+            }
+          },
+          "required": ["strid_images", "save_current_state", "continue_from_last_state"]
+        }
+      },
+      "required": ["source", "pre_process", "post_process", "processing", "general_control"]
+    }
+  },
+  "required": ["metadata", "ul_detection"]
+}
