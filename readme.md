@@ -76,6 +76,10 @@ Below is the list of available models in the UniversaLabeler project, along with
     https://mega.io/cmd#download
 
 
+6. ### Install SAM
+    note that SAM has some issues during its installation, if ur facing with something like "ModuleNotFoundError: No module named '_bz2'"
+    please visit the next page -> https://stackoverflow.com/questions/12806122/missing-python-bz2-module
+    *see also the /issues/ModuleNotFoundError/bz2*
 ### Downloading Model Weights
 
 - Place your **SECRET_KEY** in `UniversaLabeler/keys/secret_key.txt`.
