@@ -4,7 +4,7 @@ from typing import List, Dict
 import cv2
 import numpy as np
 from ModelsFactory.Detection.detection_base_model import DetectionBaseModel
-from common.model_name_registry import ModelNameRegistryDetection, ConfigParameters
+from common.model_name_registry import ModelNameRegistryDetection, ConfigParameters, PROMPT_MODEL
 
 
 class GoogleVisionDetectionModel(DetectionBaseModel):
@@ -13,9 +13,9 @@ class GoogleVisionDetectionModel(DetectionBaseModel):
     """
     def set_prompt(self, prompt: List[str]):
         """
-        DETR does not use prompts. Method is overridden to maintain compatibility.
+        google vision does not support prompts. Method is overridden to maintain compatibility.
         """
-        print("DETR does not support prompts. This method is ignored.")
+        print("google vision does not support prompts. This method is ignored.")
 
     def __init__(self, credential_path: str):
         super().__init__()
@@ -114,6 +114,15 @@ class GoogleVisionDetectionModel(DetectionBaseModel):
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         cv2.imwrite(output_path, image_annotated)
 
+    @staticmethod
+    def get_available_classes() -> str:
+        """
+        Return a notice that this model uses a free prompt for object detection.
+
+        Returns:
+        - str: Notice string.
+        """
+        return PROMPT_MODEL
 
 if __name__ == '__main__':
     # Initialize the Google Vision detection model
