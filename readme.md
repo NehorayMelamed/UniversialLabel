@@ -227,6 +227,7 @@ mkdir google_vision_api_key
 
 - **Model Enhancements**:
   - Support for more models including TREX and SAM2.
+  - Make the Sahi works with other models
   - Improvements to the SegSelector algorithm.
   - Support classes_cleaner - which will return only the desired user input classes
   - Support auto Models selector base on the angle 
