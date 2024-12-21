@@ -42,6 +42,9 @@ class RegevDetectionModel(DetectionBaseModel):
         Args:
             prompt (List[str]): A list of custom class names for object detection.
         """
+        # From BaseModel
+        self.validate_prompt(prompt)
+
         self.prompt = prompt
         if self.model:
             self.model.classes = self.prompt
@@ -97,6 +100,7 @@ class RegevDetectionModel(DetectionBaseModel):
             formatted_result["scores"].append(float(det.conf))
 
         return formatted_result
+
 
 
 # Simple usage example of YOLOWorld_Model

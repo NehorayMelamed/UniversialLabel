@@ -37,6 +37,9 @@ class YOLOWorld_Model(DetectionBaseModel):
         Args:
             prompt (List[str]): A list of custom class names for object detection.
         """
+        # From BaseModel
+        self.validate_prompt(prompt)
+
         self.prompt = prompt
         if self.model:
             self.model.set_classes(self.prompt)

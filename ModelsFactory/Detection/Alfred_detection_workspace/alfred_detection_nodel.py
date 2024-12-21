@@ -35,6 +35,10 @@ class AlfredDetectionModel(DetectionBaseModel):
         Args:
             prompt (List[str]): A list of custom class names for object detection.
         """
+
+        #From Base model
+        self.validate_prompt(prompt)
+
         print("model not support prompt")
 
     def set_image(self, image: np.ndarray):

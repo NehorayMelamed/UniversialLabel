@@ -21,19 +21,19 @@ class BaseModel(ABC):
 
     @abstractmethod
     def init_model(self):
-        pass
+        raise NotImplementedError("Subclasses should implement this method.")
 
     @abstractmethod
     def set_prompt(self, prompt: str):
-        pass
+        raise NotImplementedError("Subclasses should implement this method.")
 
     @abstractmethod
     def set_image(self, image):
-        pass
+        raise NotImplementedError("Subclasses should implement this method.")
 
     @abstractmethod
     def get_result(self):
-        pass
+        raise NotImplementedError("Subclasses should implement this method.")
 
     @abstractmethod
     def save_result(self, output_path: str):
@@ -43,7 +43,7 @@ class BaseModel(ABC):
         Args:
             output_path (str): The path to save the result image.
         """
-        pass
+        raise NotImplementedError("Subclasses should implement this method.")
 
     @staticmethod
     def get_available_classes() -> Union[list, str]:
@@ -53,5 +53,17 @@ class BaseModel(ABC):
         """
         raise NotImplementedError("Subclasses should implement this method.")
 
+    def validate_prompt(self, prompts):
+        """
+        Validate that the prompts are a list of strings.
+
+        Args:
+            prompts (Any): The input prompts to validate.
+
+        Raises:
+            ValueError: If the prompts are not a list of strings.
+        """
+        if not isinstance(prompts, list) or not all(isinstance(p, str) for p in prompts):
+            raise ValueError("Prompts must be a list of strings.")
 
 
