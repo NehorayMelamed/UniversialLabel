@@ -20,7 +20,7 @@ class GroundingDINO_Model(DetectionBaseModel):
     """
     GroundingDINO_Model handles inference using the GroundingDINO API, inheriting from DetectionBaseModel.
     """
-    def __init__(self, model_config_path: str, model_checkpoint_path: str, cpu_only: bool = False):
+    def __init__(self, model_config_path: str, model_checkpoint_path: str, cpu_only: bool = False, model_name=ModelNameRegistryDetection.DINO):
         super().__init__(prompt=None)
         self.model_config_path = model_config_path
         self.model_checkpoint_path = model_checkpoint_path
@@ -29,7 +29,8 @@ class GroundingDINO_Model(DetectionBaseModel):
         self.image = None
         self.image_pil = None
         self.inference_results = None
-        self.model_name = ModelNameRegistryDetection.DINO  # Assign model name
+        # If the model_name is set, change the self.name to the desired one, like for example - opengeos
+        self.model_name = model_name  # Assign model name
 
     def init_model(self):
         """
@@ -53,6 +54,8 @@ class GroundingDINO_Model(DetectionBaseModel):
         Args:
             prompt (str): The text prompt for object detection.
         """
+        # From BaseModel
+        self.validate_prompt(prompt)
         prompt = ". ".join(prompt) + "."
         self.prompt = prompt
 
