@@ -16,17 +16,22 @@ UniversaLabeler is a project that provides a modular and extensible platform for
 
 Below is the list of available models in the UniversaLabeler project, along with their type:
 
-|   Model Name   | Class/prompt |  model type  |
-|:--------------:|:------------:|:------------:|
-|      DINO      |    prompt    |  Detection   |
-|   YOLO_WORLD   |    prompt    |  Detection   |
-|  YOLO_ALFRED   |   classes    |  Detection   |
-|     WALDO      |    prompt    |  Detection   |
-|   YOLO_REGEV   |   classes    |  Detection   |
-| OPEN_EARTH_MAP |   classes    |   Segmentation    |
-|      SAM2      |     none     | Segmentation |
-| google vision  |    prompt    |  Detection   |
-| facebook dert  |     prompt     |  Detection   |
+|  Model Name   | Class/prompt |  model type  |
+|:-------------:|:------------:|:------------:|
+|   GrouDino    |    prompt    |  Detection   |
+|  Yolo world   |    prompt    |  Detection   |
+|  Yolo Alfred  |   classes    |  Detection   |
+|     Waldo     |    prompt    |  Detection   |
+|  Yolo regev   |   classes    |  Detection   |
+| OpenEarthMap  |   classes    | Segmentation |
+|     SAM2      |     none     | Segmentation |
+| Google vision |    prompt    |  Detection   |
+|      SAM      |     none     | Segmentation |   
+|    Dino-X     |    prompt    |  Detection   |   
+|    Dino-X     |    prompt    | Segmentation |   
+|   OpenGeos    |    prompt    |  Detection   |   
+
+
 
 ### Explanation:
 
@@ -115,12 +120,17 @@ Example usage:
 ```python
 from UL.ul_detection import ULDetection
 from common.model_name_registry import ModelNameRegistryDetection
+    
+detection_classes = ["tree", "grass", "car", "person"]
 
 ul_detection = ULDetection(
-    image_input="path/to/image.jpg",
-    detection_classes=["SmallVehicle", "Person"],
-    use_nms=True,
-    model_names=[ModelNameRegistryDetection.YOLO_ALFRED.value, ModelNameRegistryDetection.WALDO.value]
+    image_input=image_path,
+    detection_class=detection_classes,
+    class_priorities={},
+    model_priorities={},
+    sahi_models_params=sahi_model_params,
+    sahi_models_params={},
+    model_names=[ModelNameRegistryDetection.YOLO_WORLD, ModelNameRegistryDetection.YOLO_ALFRED]
 )
 formatted_result, individual_results = ul_detection.process_image()
 ```
@@ -135,12 +145,15 @@ Example usage:
 from UL.ul_segmentation import ULSegmentation
 from common.model_name_registry import ModelNameRegistrySegmentation
 
-ul_segmentation = ULSegmentation(
-    image_input="path/to/image.jpg",
-    segmentation_class=["greenery", "buildings"],
-    use_segselector=True,
-    model_names=[ModelNameRegistrySegmentation.OPEN_EARTH_MAP.value]
-)
+    segmentation_class = ["road", "buildings", "pavement", "greenery"]
+    ul_segmentation = ULSegmentation(
+        image_input=image_path,
+        segmentation_class=segmentation_class,
+        class_priorities={},
+        model_priorities={},
+        use_segselector=True,
+        model_names=[ModelNameRegistrySegmentation.SAM.value, ModelNameRegistrySegmentation.OPEN_EARTH_MAP.value]
+    )
 formatted_result, individual_results = ul_segmentation.process_image()
 ```
 
@@ -185,6 +198,7 @@ class ModelNameRegistrySegmentation(Enum):
 ## Safety Considerations
 
 - All checkpoint files can be downloaded by specifying a **SECRET_KEY**.
+- For now its no needed anymore:)
 - Ensure that your **SECRET_KEY** is saved to `UniversaLabeler/keys/secret_key.txt` to allow access to encrypted checkpoints.
     
 ## Using of :
@@ -202,16 +216,21 @@ mkdir google_vision_api_key
 
 
 ## New and Last Updates
-- nehoray - support getting dict of models and their classes via get_available_models_with_classes function fix regev loading in factory_detection_interface.py
-- nehoray - update the req and the readme.md
-- nehoray - null
+- nehoray - support pass sahi with costume parameters per models - see UL class
+- OpenGeos model was added
+- SAM was added
+- Dino-X was added 
+- save multy segmentations models results
 
 
 ## Planned Features
 
 - **Model Enhancements**:
-  - Support for more models including TREX and OPENGEOS.
+  - Support for more models including TREX and SAM2.
   - Improvements to the SegSelector algorithm.
+  - Support classes_cleaner - which will return only the desired user input classes
+  - Support auto Models selector base on the angle 
+  
 - **Docker Support**: Background Docker integration for running models as services.
 - **Testing**: Additional unit tests for model reliability.
 
