@@ -21,7 +21,7 @@ class ULDetection:
                  class_priorities: Dict[str, int] = None,
                  model_priorities: Dict[ModelNameRegistryDetection, int] = None,
                  use_nms: bool = True,
-                 sahi_models: List[ModelNameRegistryDetection] = None,
+                 sahi_models_params: Dict[ModelNameRegistryDetection, Dict] = None,
                  model_names: List[ModelNameRegistryDetection] = None):
         """
         Initialize the ULDetection class.
@@ -32,10 +32,9 @@ class ULDetection:
             class_priorities (Dict[str, int]): Dictionary of class priorities for NMS. Defaults to None.
             model_priorities (Dict[ModelNameRegistryDetection, int]): Dictionary of model priorities for NMS. Defaults to None.
             use_nms (bool): Flag to indicate whether to use NMS. Defaults to True.
-            sahi_models (List[ModelNameRegistryDetection]): List of models to run with Sahi. Defaults to None.
+            sahi_models_params (Dict[ModelNameRegistryDetection, Dict]): Dictionary of SAHI models and their parameters.
             model_names (List[ModelNameRegistryDetection]): List of model names. Defaults to None.
         """
-
         # Initialize Image
         self.image = self._load_image(image_input)
 
@@ -44,7 +43,7 @@ class ULDetection:
         self.class_priorities = class_priorities if class_priorities else {}
         self.model_priorities = model_priorities if model_priorities else {}
         self.use_nms = use_nms
-        self.sahi_models = sahi_models if sahi_models else []
+        self.sahi_models_params = sahi_models_params if sahi_models_params else {}
 
         # Create models
         self.factory = FactoryDetectionInterface()
@@ -59,7 +58,6 @@ class ULDetection:
             self.nms_handler.set_class_priorities(self.class_priorities)
         if self.model_priorities:
             self.nms_handler.set_model_priorities(self.model_priorities)
-
 
     def _load_image(self, image_input: Union[str, np.ndarray]) -> np.ndarray:
         """
@@ -99,17 +97,20 @@ class ULDetection:
 
         # Process each model
         for model in self.models:
-            model_name = model.__class__.__name__
+            model_name = model.model_name
 
             # Set the image for the model
             model.set_image(self.image)
 
-            if model_name in self.sahi_models and SahiDetectionWrapper.is_supported(model_name):
+            if model_name in self.sahi_models_params and SahiDetectionWrapper.is_supported(model_name):
                 # Use Sahi wrapper if supported
                 sahi_wrapper = SahiDetectionWrapper(model)
+                # Set custom parameters or use defaults
+                sahi_params = self.sahi_models_params.get(model_name, {})
+                sahi_wrapper.set_parameters(sahi_params)
                 results[model_name] = sahi_wrapper.get_bbox(self.image)
             else:
-                if model_name in self.sahi_models:
+                if model_name in self.sahi_models_params:
                     print(f"SAHI is not supported for {model_name}. Using regular inference.")
 
                 # Run inference
@@ -153,6 +154,7 @@ class ULDetection:
             self._save_image_with_boxes(nms_results, output_path)
         else:
             print("No NMS results to save.")
+
     def _save_image_with_boxes(self, result: Dict[str, List], output_path: str):
         """
         Save the image with bounding boxes drawn on it.
@@ -170,21 +172,28 @@ class ULDetection:
 
 # Example usage
 if __name__ == "__main__":
-    image_path = "/home/nehoray/PycharmProjects/UniversaLabeler/data/images/mix/small_car.jpeg"
-    detection_classes = ["car", "small vehicle", "tree"]
+    image_path = "/home/nehoray/PycharmProjects/UniversaLabeler/data/tested_image/detection/from_sky.jpeg"
+    detection_classes = ["tree", "grass", "car", "person"]
+    sahi_model_params = {
+        ModelNameRegistryDetection.YOLO_WORLD: {
+            'slice_dimensions': (256, 256),
+            'detection_conf_threshold': 0.7
+        },
+        ModelNameRegistryDetection.YOLO_ALFRED: {
+            'slice_dimensions': (128, 128),
+            'zoom_factor': 1.5
+        }
+    }
     ul_detection = ULDetection(
         image_input=image_path,
         detection_class=detection_classes,
         class_priorities={},
-        model_priorities={ModelNameRegistryDetection.WALDO: 1, ModelNameRegistryDetection.YOLO_ALFRED: 3, ModelNameRegistryDetection.YOLO_WORLD: 2},
+        model_priorities={},
         use_nms=True,
-        sahi_models=[ModelNameRegistryDetection.YOLO_WORLD], #ToDo suupporrt setting parameters
-        model_names=[ModelNameRegistryDetection.YOLO_WORLD, ModelNameRegistryDetection.DINO, ModelNameRegistryDetection.YOLO_ALFRED, ModelNameRegistryDetection.WALDO]
+        # sahi_models_params=sahi_model_params,
+        sahi_models_params={},
+        model_names=[ModelNameRegistryDetection.YOLO_WORLD, ModelNameRegistryDetection.YOLO_ALFRED]
     )
-
-    # Print available models and their classes
-    print(ul_detection.factory.get_available_models_with_classes())
-
 
     # Load the models
     ul_detection.load_models()
@@ -193,4 +202,4 @@ if __name__ == "__main__":
     nms_results, individual_results = ul_detection.process_image()
 
     # Save the results
-    ul_detection.save_results(individual_results, nms_results, "output_directory_2")
+    ul_detection.save_results(individual_results, nms_results, "without_sahi")

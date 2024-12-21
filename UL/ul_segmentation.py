@@ -89,6 +89,9 @@ class ULSegmentation:
         for model in self.models:
             model_name = model.__class__.__name__
             model.set_image(self.image)
+
+            # Ensure get_result is run before get_masks
+            model.get_result()
             results[model_name] = model.get_masks()
 
         # Format class names to lowercase
@@ -128,10 +131,10 @@ class ULSegmentation:
 
         return formatted_result, formatted_result_with_models
 
-
     def save_results(self, formatted_result_with_models: Dict[str, Dict[str, List]], output_dir: str):
         """
-        Save segmentation results for each model and the final SegSelector result.
+        Save segmentation results for each model using the model's `save_colored_result` method.
+        and also the final image with all the segmentations together.
 
         Args:
             formatted_result_with_models (Dict[str, Dict[str, List]]): Formatted segmentation results.
@@ -140,20 +143,24 @@ class ULSegmentation:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        # Save each model's result
+        # Save results for each model using its own save_colored_result
         for model_name, result in formatted_result_with_models.items():
+            model_instance = self._get_model_instance_by_name(model_name)
+            if model_instance is None:
+                print(f"Model instance for {model_name} not found. Skipping save.")
+                continue
+
             model_output_dir = os.path.join(output_dir, model_name)
-            if not os.path.exists(model_output_dir):
-                os.makedirs(model_output_dir)
+            os.makedirs(model_output_dir, exist_ok=True)
 
+            # Call the model's save_colored_result to save its results
             output_path = os.path.join(model_output_dir, f"{model_name}_result.png")
+            try:
+                model_instance.save_colored_result(output_path)
+                print(f"Saved results for {model_name} to {output_path}")
+            except Exception as e:
+                print(f"Error saving results for {model_name}: {e}")
 
-            # Only supports OpenEarthMap for now
-            if model_name == "OpenEarthMapModel":
-                # Use the OpenEarthMapModel's save_colored_result method
-                model_instance = self._get_model_instance_by_name(model_name)
-                if model_instance:
-                    model_instance.save_colored_result(output_path)
 
     def _get_model_instance_by_name(self, model_name: str):
         """Get the model instance by its name."""
@@ -162,21 +169,17 @@ class ULSegmentation:
                 return model
         return None
 
-
-# Example usage
 if __name__ == "__main__":
-    image_path = "/home/nehoray/PycharmProjects/UniversaLabeler/data/images/mix/small_car.jpeg"
+    image_path = "/home/nehoray/PycharmProjects/test_opengeos/test_image.png"
     segmentation_class = ["road", "buildings", "pavement", "greenery"]
     ul_segmentation = ULSegmentation(
         image_input=image_path,
         segmentation_class=segmentation_class,
-        class_priorities={"road": 2, "buildings": 1},
-        model_priorities={ModelNameRegistrySegmentation.OPEN_EARTH_MAP.value: 2},
-        use_segselector=True,  # Using SegSelector to combine results
-        model_names=[ModelNameRegistrySegmentation.OPEN_EARTH_MAP.value]
+        class_priorities={},
+        model_priorities={},
+        use_segselector=True,
+        model_names=[ModelNameRegistrySegmentation.SAM.value, ModelNameRegistrySegmentation.OPEN_EARTH_MAP.value]
     )
-    # Print available models and their classes
-    print(ul_segmentation.factory.get_available_models_with_classes())
 
     # Load the models
     ul_segmentation.load_models()
@@ -184,5 +187,6 @@ if __name__ == "__main__":
     # Process the image
     formatted_result, individual_results = ul_segmentation.process_image()
 
-    # Save the results
-    ul_segmentation.save_results(individual_results, "output_directory")
+    # Save individual model results
+    ul_segmentation.save_results(individual_results, "output_directory_models")
+
