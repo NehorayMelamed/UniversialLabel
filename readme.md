@@ -52,40 +52,41 @@ Below is the list of available models in the UniversaLabeler project, along with
 ### Installing the Environment
 
 
-1. Clone the repository:
+1.  #### Clone the repository:
     ```bash
     git clone https://github.com/NehorayMelamed/UniversialLabel.git
     ```
 
-2. Update the `BASE_PROJECT_DIRECTORY_PATH` in `common/general_parameters.py`:
+2.  #### Update the `BASE_PROJECT_DIRECTORY_PATH` in `common/general_parameters.py`:
     ```python
     BASE_PROJECT_DIRECTORY_PATH = "/your/path/to/UniversaLabeler"
     ```
 
-3. Install all required packages:
+3. #### Install all required packages:
     1. Install Torch base on your OS (https://pytorch.org/get-started/locally/)
     2. install other packages
    ```bash
     pip install -r requirements.txt
     ```
     
-4. ### Install GroundingDINO 
+4. #### Install GroundingDINO 
     (base on their installation guid - https://github.com/IDEA-Research/GroundingDIN )
     1. cd ModelsFactory/Detection/GroundingDINO_workspace/git_workspace/GroundingDINO/
     2. pip install -e .
 
 
-5. Install Mega cli 
+5. #### Install Mega cli 
     base on their website
 
     https://mega.io/cmd#download
 
 
-6. ### Install SAM
+6. #### Install SAM
     note that SAM has some issues during its installation, if ur facing with something like "ModuleNotFoundError: No module named '_bz2'"
     please visit the next page -> https://stackoverflow.com/questions/12806122/missing-python-bz2-module
     *see also the /issues/ModuleNotFoundError/bz2*
-### Downloading Model Weights
+
+### Download Model Weights
 
 - Place your **SECRET_KEY** in `UniversaLabeler/keys/secret_key.txt`.
 - Run the script to download model weights and extract them into the right place:
@@ -95,7 +96,7 @@ Below is the list of available models in the UniversaLabeler project, along with
 - Ensure the weights are downloaded successfully to:
   `UniversaLabeler/common/weights`
 
-### Running Unit Tests
+### Run Unit Tests
 
 - Navigate to `UniversaLabeler/TestWorkspace` and run the unit tests using:
   ```bash
@@ -111,7 +112,7 @@ Below is the list of available models in the UniversaLabeler project, along with
 
 ### Universal Labeler Detection and Segmentation
 
-#### Detection
+### Detection
 
 The `ULDetection` class allows combining detection models and using them with an optional NMS merging.
 
@@ -135,7 +136,7 @@ ul_detection = ULDetection(
 formatted_result, individual_results = ul_detection.process_image()
 ```
 
-#### Segmentation
+### Segmentation
 
 The `ULSegmentation` class allows combining segmentation models and using them with an optional SegSelector for merging.
 
@@ -190,19 +191,20 @@ class ModelNameRegistrySegmentation(Enum):
     SAM2 = "SAM2"
 ```
 
-## NMS and SegSelector Explained
+### NMS and SegSelector Explained
 
 - **NMS Handler**: When using multiple detection models, the NMS handler combines overlapping bounding boxes from different models into a unified set, ensuring there are no duplicates.
 - **SegSelector**: For segmentation tasks, the SegSelector class allows you to merge the results from multiple segmentation models based on a priority system. This is particularly useful if different segmentation models have different strengths.
 
-## Safety Considerations
+### Safety Considerations
 
 - All checkpoint files can be downloaded by specifying a **SECRET_KEY**.
 - For now its no needed anymore:)
 - Ensure that your **SECRET_KEY** is saved to `UniversaLabeler/keys/secret_key.txt` to allow access to encrypted checkpoints.
     
-## Using of :
-### Google api 
+## Notes :
+### Google api usage
+if you are going to use Google api, please:
 1. Generate the key for the "Service Account Key" of google  for *vision api* from your project, or use our Key.  (https://cloud.google.com/iam/docs/keys-create-delete)
 2. create a directory inside the keys directory with the name - google_vision_api_key 
 ```                                         
