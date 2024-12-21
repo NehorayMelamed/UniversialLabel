@@ -1,5 +1,18 @@
+####### total
 numpy>=1.21.0
 opencv-python>=4.5.3
 ultralytics
 pillow>=8.2.0
 kornia>=0.6.0
+
+
+###### dino-x
+dds-cloudapi-sdk==0.3.3
+supervision
+pycocotools
+numpy
+opencv-python
+
+
+### SAM installation
+pip install git+https://github.com/facebookresearch/segment-anything.git
