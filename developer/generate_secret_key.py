@@ -28,7 +28,7 @@ if __name__ == "__main__":
     save_to_file(secret_key, SECRET_KEY_PATH)
 
     # URL to be encrypted (replace this with your Mega link)
-    original_url = "https://mega.nz/file/wz0AQZbD#M2sterOBiXOiUkAVf2AiOF2YAUW3N6FWdXLlFEx_kpU"
+    original_url = "https://mega.nz/file/h29RGCCA#OyP9FIz_w7bDF51iKq7ViAHQo6ouTta9-U7xIi6Xlnk"
 
     # Encrypt the URL
     encrypted_url = encrypt_url(secret_key, original_url)
