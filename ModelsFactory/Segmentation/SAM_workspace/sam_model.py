@@ -15,7 +15,7 @@ class SAMSegmentation(SegmentationBaseModel):
     def __init__(self, checkpoint_path: str):
         super().__init__()
         self.checkpoint_path = checkpoint_path
-        self.model_name = ModelNameRegistrySegmentation.SAM
+        self.model_name = ModelNameRegistrySegmentation.SAM.value
         self.sam_model = None
         self.mask_generator = None
         self.image = None

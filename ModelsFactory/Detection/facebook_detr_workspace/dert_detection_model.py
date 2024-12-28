@@ -21,7 +21,7 @@ class DetrDetectionModel(DetectionBaseModel):
         self.processor = None
         self.model = None
         self.threshold = threshold
-        self.model_name = ModelNameRegistryDetection.DETR  # Replace with the appropriate registry key
+        self.model_name = ModelNameRegistryDetection.DETR.value # Replace with the appropriate registry key
 
 
     def init_model(self):

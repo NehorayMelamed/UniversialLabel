@@ -20,7 +20,7 @@ class YOLOWorld_Model(DetectionBaseModel):
         self.model = None
         self.image = None
         self.inference_results = None
-        self.model_name = ModelNameRegistryDetection.YOLO_WORLD  # Assign model name
+        self.model_name = ModelNameRegistryDetection.YOLO_WORLD.value  # Assign model name
 
     def init_model(self):
         """

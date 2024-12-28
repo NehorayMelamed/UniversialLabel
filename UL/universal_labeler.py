@@ -27,3 +27,6 @@ class UniversalLabeler(ABC):
         """
         raise NotImplementedError(f"{self.__class__.__name__} does not support functionality.")
 
+    def clean_unnecessary_classes(self):
+        raise NotImplementedError("Subclasses should implement this method.")
+

@@ -15,6 +15,7 @@ class ModelNameRegistryDetection(Enum):
     GOOGLE_VISION = "GOOGLE_VISION"  # New entry for Google Vision model
     DINOX_DETECTION = "DINOX_DETECTION"
     OPENGEOS = "OPENGEOS"
+    TREX2 = "TREX2"
 class ModelNameRegistrySegmentation(Enum):
     # Segmentation Models
     DINOX_SEGMENTATION = "DINOX_SEGMENTATION"
@@ -43,9 +44,15 @@ class ConfigParameters(Enum):
     OPEN_EARTH_MAP_MODEL_NAME = "open_earth_map_model.pth"
     GOOGLE_VISION_KEY_API = os.path.join(os.path.join(BASE_PROJECT_DIRECTORY_PATH, "keys", "google_vision_api_key", os.listdir(os.path.join(BASE_PROJECT_DIRECTORY_PATH, "keys", "google_vision_api_key"))[0]) )
     DINOX_API_TOKEN = os.path.join(BASE_PROJECT_DIRECTORY_PATH, "keys", "dinox_key")
-
+    TREX_API_TOKEN = DINOX_API_TOKEN
     SAM_THIN_PT = os.path.join(WEIGHTS_PATH, "sam_vit_b_01ec64.pth")
     SAM_LARGE_PT = os.path.join(WEIGHTS_PATH, "sam_vit_b_01ec64.pth")
+
+    SAM2_THIN_PT = os.path.join(WEIGHTS_PATH,"sam2.1_hiera_large.pt")
+    SAM2_THIN_CONFIG = "configs/sam2.1/sam2.1_hiera_l.yaml"
+
+    SAM2_PATH_CONFLICT_TO_APPEND = os.path.join(BASE_PROJECT_DIRECTORY_PATH, "ModelsFactory","Segmentation","SAM2_workspace", "git_workspace", "sam2")
+
 
     @classmethod
     def has_value(cls, value):
@@ -61,3 +68,5 @@ class ConfigParameters(Enum):
         return value in cls._value2member_map_
 
 PROMPT_MODEL = "free prompt"
+PROMPT_MODEL_BASE_INFERENCE_BBOX = "PROMPT_MODEL_BASE_INFERENCE_BBOX"
+MOST_CONFIDENCE = "MOST_CONFIDENCE"

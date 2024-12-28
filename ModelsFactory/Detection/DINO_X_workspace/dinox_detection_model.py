@@ -19,7 +19,7 @@ class DINOXDetection(DetectionBaseModel):
         self.api_token = api_token
         self.client = None
         self.config = None
-        self.model_name = ModelNameRegistryDetection.DINOX_DETECTION
+        self.model_name = ModelNameRegistryDetection.DINOX_DETECTION.value
         self.prompts = None
         self.image_url = None
         self.inference_results = None

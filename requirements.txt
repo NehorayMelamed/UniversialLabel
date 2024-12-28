@@ -1,10 +1,10 @@
 ####### total
 numpy>=1.21.0
 opencv-python>=4.5.3
-ultralytics
+ultralytics~=8.3.17
 pillow>=8.2.0
 kornia>=0.6.0
-
+matplotlib
 
 ###### dino-x
 dds-cloudapi-sdk==0.3.3
@@ -15,4 +15,51 @@ opencv-python
 
 
 ### SAM installation
-pip install git+https://github.com/facebookresearch/segment-anything.git
+git+https://github.com/facebookresearch/segment-anything.git
+
+
+### TREX
+#dds-cloudapi-sdk==0.1.1
+
+
+### SAM2 installations
+tqdm>=4.66.1
+hydra-core>=1.3.2
+iopath>=0.1.10
+pillow>=9.4.0
+
+
+
+### SEEM
+## for the detectron2
+#git+https://github.com/MaureenZOU/detectron2-xyz.git
+#nltk
+#json_tricks~=3.17.3
+#yacs~=0.1.8
+#scikit-learn~=1.3.1
+#fvcore~=0.1.5.post20221221
+#sentencepiece~=0.1.99
+#mpi4py~=3.1.5
+#vision-datasets~=0.2.2
+#cython~=3.0.2
+#diffdist~=0.1
+#pyarrow~=13.0.0
+#cityscapesscripts~=2.2.2
+#shapely~=1.8.0
+#scikit-image~=0.21.0
+#mup~=1.0.0
+#accelerate~=0.23.0
+#deepspeed~=0.10.3
+#wandb~=0.15.12
+#infinibatch~=0.1.1
+#gradio~=3.42.0
+#pillow==9.4.0
+
+
+#libgfortran-ng     pkgs/main/linux-64::libgfortran-ng-7.5.0-ha8ba4b0_17
+# libgfortran4       pkgs/main/linux-64::libgfortran4-7.5.0-ha8ba4b0_17
+# mpi                pkgs/main/linux-64::mpi-1.0-mpich
+# mpi4py             pkgs/main/linux-64::mpi4py-3.1.4-py39hfc96bbd_0
+# mpich
+
+

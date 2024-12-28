@@ -22,7 +22,7 @@ class GoogleVisionDetectionModel(DetectionBaseModel):
         self.credential_path = credential_path
         self.client = None
         self.image = None
-        self.model_name = ModelNameRegistryDetection.GOOGLE_VISION
+        self.model_name = ModelNameRegistryDetection.GOOGLE_VISION.value
 
     def init_model(self):
         """
@@ -77,8 +77,21 @@ class GoogleVisionDetectionModel(DetectionBaseModel):
         }
 
         for obj in self.inference_results:
-            bbox = [(vertex.x, vertex.y) for vertex in obj.bounding_poly.normalized_vertices]
-            formatted_result["bboxes"].append(bbox)
+            # Extract normalized bounding box vertices
+            vertices = obj.bounding_poly.normalized_vertices
+
+            # Ensure vertices are valid (must have exactly 4 points)
+            if len(vertices) != 4:
+                print(f"Skipping invalid bbox: {vertices}")
+                continue
+
+            # Convert normalized vertices to [x_min, y_min, x_max, y_max] format
+            x_min = min(v.x for v in vertices) * self.image.shape[1]
+            y_min = min(v.y for v in vertices) * self.image.shape[0]
+            x_max = max(v.x for v in vertices) * self.image.shape[1]
+            y_max = max(v.y for v in vertices) * self.image.shape[0]
+
+            formatted_result["bboxes"].append([x_min, y_min, x_max, y_max])
             formatted_result["labels"].append(obj.name)
             formatted_result["scores"].append(round(obj.score, 3))
 
@@ -98,8 +111,7 @@ class GoogleVisionDetectionModel(DetectionBaseModel):
         boxes = self.get_boxes()
 
         for bbox, label, score in zip(boxes["bboxes"], boxes["labels"], boxes["scores"]):
-            x_min, y_min = int(bbox[0][0] * self.image.shape[1]), int(bbox[0][1] * self.image.shape[0])
-            x_max, y_max = int(bbox[2][0] * self.image.shape[1]), int(bbox[2][1] * self.image.shape[0])
+            x_min, y_min, x_max, y_max = map(int, bbox)
             cv2.rectangle(image_annotated, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
             cv2.putText(
                 image_annotated,

@@ -17,7 +17,7 @@ class DINOXSegmentation(SegmentationBaseModel):
         self.api_token = api_token
         self.client = None
         self.config = None
-        self.model_name = ModelNameRegistrySegmentation.DINOX_SEGMENTATION
+        self.model_name = ModelNameRegistrySegmentation.DINOX_SEGMENTATION.value
         self.prompts = None
         self.image_url = None
         self.inference_results = None

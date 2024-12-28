@@ -18,9 +18,12 @@ class OpenEarthMapModel(SegmentationBaseModel):
         self.in_channels = in_channels
         self.n_classes = n_classes
         self.image = None
+        self.result = None  # Cache for model output
+        self.masks = None  # Cache for processed masks
+        self.labels = None  # Cache for processed labels
         self.model_dir = model_dir
         self.model_checkpoint_name = model_checkpoint_name
-        self.model_name = ModelNameRegistrySegmentation.OPEN_EARTH_MAP  # Assign model name
+        self.model_name = ModelNameRegistrySegmentation.OPEN_EARTH_MAP.value  # Assign model name
 
     CLASS_MAPPING = {
         0: "unknown",
@@ -39,7 +42,6 @@ class OpenEarthMapModel(SegmentationBaseModel):
         """
         Initialize the OpenEarthMap model.
         """
-
         self.model = oem.networks.UNetFormer(in_channels=self.in_channels, n_classes=self.n_classes)
         self.model = oem.utils.load_checkpoint(self.model, model_checkpoint_name=self.model_checkpoint_name,
                                                model_dir=self.model_dir)
@@ -67,7 +69,7 @@ class OpenEarthMapModel(SegmentationBaseModel):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image_tensor = torch.tensor(image.transpose(2, 0, 1)).unsqueeze(0).float() / 255.0
 
-        # Add a check for ensuring consistent shape (height, width, and number of channels)
+        # Add padding if necessary to ensure divisible by 32
         if image_tensor.shape[2] % 32 != 0 or image_tensor.shape[3] % 32 != 0:
             h, w = image_tensor.shape[2], image_tensor.shape[3]
             new_h, new_w = ((h + 31) // 32) * 32, ((w + 31) // 32) * 32
@@ -75,6 +77,9 @@ class OpenEarthMapModel(SegmentationBaseModel):
             image_tensor = torch.nn.functional.pad(image_tensor, (0, pad_w, 0, pad_h), mode="reflect")
 
         self.image = image_tensor
+        self.result = None  # Reset cached result when a new image is set
+        self.masks = None  # Reset cached masks
+        self.labels = None  # Reset cached labels
 
     def get_result(self):
         """
@@ -83,13 +88,15 @@ class OpenEarthMapModel(SegmentationBaseModel):
         Returns:
         - torch.Tensor: The raw output of the model (e.g., class probabilities or logits).
         """
+        if self.result is not None:
+            return self.result
+
         if self.model is None or self.image is None:
-            raise ValueError(
-                "Model or image not set. Please initialize the model and set an image before getting the result.")
+            raise ValueError("Model or image not set. Please initialize the model and set an image before getting the result.")
 
         with torch.no_grad():
-            result = self.model(self.image.to(next(self.model.parameters()).device)).squeeze(0).cpu()
-        return result
+            self.result = self.model(self.image.to(next(self.model.parameters()).device)).squeeze(0).cpu()
+        return self.result
 
     def get_masks(self) -> dict:
         """
@@ -100,10 +107,14 @@ class OpenEarthMapModel(SegmentationBaseModel):
             - "masks" (List[np.ndarray]): List of binary masks for each class.
             - "labels" (List[str]): List of class labels corresponding to each mask.
         """
+        if self.masks is not None and self.labels is not None:
+            return {"masks": self.masks, "labels": self.labels}
+
         result = self.get_result()
-        # Extract binary masks for each class from the raw output
         predicted_classes = np.argmax(result.numpy(), axis=0)
-        return self.format_segmentation_result(predicted_classes, self.CLASS_MAPPING)
+        formatted_result = self.format_segmentation_result(predicted_classes, self.CLASS_MAPPING)
+        self.masks, self.labels = formatted_result["masks"], formatted_result["labels"]
+        return formatted_result
 
     def save_colored_result(self, output_path: str):
         """
@@ -147,4 +158,5 @@ if __name__ == '__main__':
     model.set_image(cv2.imread("/home/nehoray/PycharmProjects/UniversaLabeler/data/images/mix/small_car.jpeg"))
     model.get_result()
     a = model.get_masks()
+    b = model.get_bbox_from_masks()
     model.save_colored_result("/home/nehoray/PycharmProjects/UniversaLabeler/ModelsFactory/Segmentation/open_earth_map_workspace/test.png")

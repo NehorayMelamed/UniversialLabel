@@ -1,133 +1,192 @@
+import os
+import sys
 import cv2
-import torch
 import numpy as np
+from typing import Dict, List, Optional, Union
+import torch
+sys.path.append("git_workspace/sam2")
+from sam2.build_sam import build_sam2
+from sam2.sam2_image_predictor import SAM2ImagePredictor
 from ModelsFactory.Segmentation.segmentation_base_model import SegmentationBaseModel
-from git_workspace.sam2.sam2.build_sam import build_sam2
-from git_workspace.sam2.sam2.sam2_image_predictor import SAM2ImagePredictor
-from common.model_name_registry import ConfigParameters
+from common.model_name_registry import ModelNameRegistrySegmentation
 
 
-class SAM2Model(SegmentationBaseModel):
+class SAM2Segmentation(SegmentationBaseModel):
     """
-    SAM2Model is a segmentation model that inherits from SegmentationBaseModel.
-    It provides image segmentation capabilities using the SAM 2 foundation model.
+    SAM2Segmentation integrates the SAM2 model for segmentation tasks.
     """
 
-    def __init__(self, checkpoint_path: str, config_file: str):
+    def __init__(self, checkpoint_path: str, model_cfg: str):
         super().__init__()
         self.checkpoint_path = checkpoint_path
-        self.config_file = config_file
-        self.model = None  # Model will be initialized in init_model()
+        self.model_cfg = model_cfg
+        self.model_name = ModelNameRegistrySegmentation.SAM2.value
         self.predictor = None
         self.image = None
-
-    CLASS_MAPPING = {
-
-    }
-
-    @classmethod
-    def get_available_classes(cls) -> list:
-        return list(cls.CLASS_MAPPING.values())
+        self.masks = None
+        self.labels = []
 
     def init_model(self):
         """
         Initialize the SAM2 model.
         """
-        # Load the model checkpoint and configuration
-        self.model = build_sam2(self.config_file, self.checkpoint_path)
-        self.predictor = SAM2ImagePredictor(self.model)
-        self.model.eval()
-        print("SAM2 model initialized.")
+        self.predictor = SAM2ImagePredictor(build_sam2(self.model_cfg, self.checkpoint_path))
 
     def set_prompt(self, prompt: str):
         """
-        Set any metadata or prompt information (not used in this specific case).
+        SAM2 does not use text-based prompts. This method is provided for compatibility.
+
+        Args:
+            prompt (str): Ignored for SAM2.
         """
-        self.prompt = prompt
+        print("SAM2 does not use text prompts. Use predict_on_part for region-specific segmentation.")
 
     def set_image(self, image: np.ndarray):
         """
-        Set the input image that will be segmented by the model.
+        Set the input image for segmentation.
 
-        Parameters:
-        - image (np.ndarray): Input image to be processed.
+        Args:
+            image (np.ndarray): Input image as a NumPy array.
         """
-        # Preprocess the image: Convert to RGB, normalize, and convert to tensor
-        image_tensor = torch.tensor(image.transpose(2, 0, 1)).unsqueeze(0).float() / 255.0
-        self.image = image_tensor
+        if not isinstance(image, np.ndarray):
+            raise ValueError("Image must be a NumPy array.")
+        self.image = image
+        self.masks = None  # Reset masks when a new image is set
+        self.partial_result = None  # Reset partial results
+        self.using_partial_result = False  # Reset partial result flag
+        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
+            self.predictor.set_image(self.image)
 
-    def get_result(self):
+    def get_result(self, boxes: Optional[List[np.ndarray]] = None) -> Dict[str, Union[List[np.ndarray], List[str]]]:
         """
-        Get the segmentation result after processing the image with the model.
+        Perform segmentation on the entire image or specific bounding boxes if provided.
+
+        Args:
+            boxes (Optional[List[np.ndarray]]): List of bounding boxes, each in XYXY format.
 
         Returns:
-        - torch.Tensor: The raw output of the model (e.g., class probabilities or logits).
+            dict: A dictionary containing:
+                - "masks" (List[np.ndarray]): List of binary masks for each class.
+                - "labels" (List[str]): List of class labels corresponding to each mask.
         """
-        if self.model is None or self.image is None:
-            raise ValueError(
-                "Model or image not set. Please initialize the model and set an image before getting the result.")
+        if self.image is None:
+            raise ValueError("No image set. Use set_image before calling get_result.")
 
-        with torch.no_grad():
-            with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-                self.predictor.set_image(self.image)
-                masks, _, _ = self.predictor.predict([])  # Provide an empty list as prompts for generic segmentation
-        return masks
+        masks = []
+        labels = []
 
-    def get_masks(self) -> dict:
+        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
+            if boxes is not None:
+                # Process each bounding box individually
+                for box in boxes:
+                    print(f"Processing bounding box: {box}")
+                    mask, _, _ = self.predictor.predict(box=box)
+                    masks.append(mask)
+                    labels.append("")  # SAM2 does not provide labels
+            else:
+                # Perform segmentation on the entire image
+                print("Performing segmentation on the entire image.")
+                mask, _, _ = self.predictor.predict()
+                masks.append(mask)
+                labels.append("")  # SAM2 does not provide labels
+
+        self.masks = masks
+        self.labels = labels
+        return {"masks": masks, "labels": labels}
+
+    def get_masks(self) -> Dict[str, Union[List[np.ndarray], List[str]]]:
         """
-        Get the segmentation masks from the model's output.
+        Retrieve binary masks.
 
         Returns:
-        - dict: A dictionary containing:
-            - "masks" (List[np.ndarray]): List of binary masks for each class.
-            - "labels" (List[str]): List of class labels corresponding to each mask.
+            dict: A dictionary containing:
+                - "masks" (List[np.ndarray]): List of binary masks for each class.
+                - "labels" (List[str]): List of class labels corresponding to each mask.
         """
-        result = self.get_result()
-        # Extract binary masks for each class from the raw output
-        predicted_classes = np.argmax(result.numpy(), axis=0)
-        return self.format_segmentation_result(predicted_classes, self.CLASS_MAPPING)
+        if self.masks is None or not self.labels:
+            raise ValueError("Masks or labels are not set. Please run get_result first.")
+
+        return {"masks": self.masks, "labels": self.labels}
 
     def save_colored_result(self, output_path: str):
         """
-        Save the colored segmentation mask result to the specified output path.
+        Save segmentation results as a colored overlay using self.masks.
 
         Args:
-            output_path (str): The path to save the result image.
+            output_path (str): Path to save the result image.
         """
         if self.image is None:
-            raise ValueError("No image set. Please set an image before saving the result.")
+            raise ValueError("Image is not set. Use set_image before saving results.")
+        if self.masks is None or len(self.masks) == 0:
+            raise ValueError("Masks are not set. Run get_result before saving results.")
 
-        result = self.get_result()
-        predicted_classes = np.argmax(result.numpy(), axis=0)
+        colored_image = self.image.copy()
 
-        class_rgb = {
-            "unknown": [0, 0, 0],  # black
+        for mask in self.masks:
+            # Validate mask
+            if mask is None:
+                print("Warning: Encountered a None mask. Skipping.")
+                continue
+            if not isinstance(mask, np.ndarray):
+                print(f"Warning: Invalid mask type {type(mask)}. Skipping.")
+                continue
+            if mask.size == 0:
+                print("Warning: Empty mask encountered. Skipping.")
+                continue
 
-        }
+            # Handle multi-channel masks
+            if mask.ndim == 3:
+                print("Processing multi-channel mask. Combining channels.")
+                mask = np.max(mask, axis=0)  # Combine channels by taking the maximum value
 
-        # Convert to RGB mask
-        colored_mask = np.zeros((predicted_classes.shape[0], predicted_classes.shape[1], 3), dtype=np.uint8)
-        for label, rgb in class_rgb.items():
-            colored_mask[predicted_classes == self.CLASS_MAPPING[label]] = rgb
+            # Generate a random color for the mask
+            color = np.random.randint(0, 255, size=(3,), dtype=np.uint8)
 
-        # Convert tensor image back to numpy and blend it with the colored mask
-        original_image_np = self.image.squeeze().permute(1, 2, 0).cpu().numpy() * 255
-        blended_result = (0.7 * original_image_np + 0.3 * colored_mask).astype(np.uint8)
+            # Overlay the mask on the image
+            colored_image[mask > 0.5] = (
+                    colored_image[mask > 0.5] * 0.5 + color * 0.5
+            ).astype(np.uint8)
 
-        # Save to file
-        cv2.imwrite(output_path, blended_result)
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        cv2.imwrite(output_path, colored_image)
         print(f"Colored segmentation mask saved to {output_path}")
 
+    @staticmethod
+    def get_available_classes() -> str:
+        """
+        Return a notice that SAM2 generates segmentation masks without predefined classes.
 
-if __name__ == '__main__':
-    # Example usage of SAM2Model
-    checkpoint_path = ConfigParameters.SAM2_CHECKPOINT_PATH.value
-    config_file = ConfigParameters.SAM2_CONFIG_FILE.value
+        Returns:
+            str: Notice string.
+        """
+        return "SAM2 does not support predefined classes. It generates segmentation masks based on prompts."
 
-    model = SAM2Model(checkpoint_path=checkpoint_path, config_file=config_file)
-    model.init_model()
-    model.set_image(cv2.imread("/home/nehoray/PycharmProjects/UniversaLabeler/data/images/mix/small_car.jpeg"))
-    model.get_result()
-    model.get_masks()
-    model.save_colored_result(
-        "/home/nehoray/PycharmProjects/UniversaLabeler/Segmentation_Models_Factory/SAM2/predictions/test.png")
+
+
+if __name__ == "__main__":
+    # Initialize the SAM2 model
+    sam2_segmentation = SAM2Segmentation(
+        checkpoint_path="/home/nehoray/PycharmProjects/UniversaLabeler/common/weights/sam2.1_hiera_large.pt",
+        model_cfg="configs/sam2.1/sam2.1_hiera_l.yaml"
+    )
+    sam2_segmentation.init_model()
+
+    # Set the image
+    image = cv2.imread("/home/nehoray/PycharmProjects/UniversaLabeler/data/street/img.png")
+    sam2_segmentation.set_image(image)
+
+    # Define multiple bounding boxes
+    bounding_boxes = [
+        np.array([45, 82, 123, 181]),
+        np.array([470, 160, 513, 199]),
+        np.array([305, 136, 427, 255]),
+    ]
+
+    # Perform segmentation for multiple bounding boxes
+    results = sam2_segmentation.get_result(boxes=bounding_boxes)
+
+    # Save results
+    sam2_segmentation.save_colored_result("output/sam2_results.jpg")
+
+    a = sam2_segmentation.get_bbox_from_masks()
+

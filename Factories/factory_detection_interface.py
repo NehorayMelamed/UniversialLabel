@@ -13,6 +13,7 @@ from ModelsFactory.Detection.Alfred_detection_workspace.alfred_detection_nodel i
 from ModelsFactory.Detection.Waldo_workspace.waldo_model_detection import WaldoDetectionModel
 from ModelsFactory.Detection.DINO_X_workspace.dinox_detection_model import DINOXDetection  # Import new detection model
 from ModelsFactory.Detection.detection_base_model import DetectionBaseModel
+from ModelsFactory.Detection.trex_workspace.trex_model_detection import TRex2DetectionModel
 from common.model_name_registry import ModelNameRegistryDetection, ConfigParameters
 from typing import Union
 
@@ -85,6 +86,14 @@ class FactoryDetectionInterface(FactoryModelInterface):
             with open(api_key_path, "r") as file:
                 api_token = file.read().strip()
             return DINOXDetection(api_token=api_token)
+        elif model_type == ModelNameRegistryDetection.TREX2:
+            # Read API token from the specified path in the registry
+            api_key_path = ConfigParameters.TREX_API_TOKEN.value
+            if not os.path.exists(api_key_path):
+                raise FileNotFoundError(f"TREX-KEY API key file not found at {api_key_path}")
+            with open(api_key_path, "r") as file:
+                api_token = file.read().strip()
+            return TRex2DetectionModel(token=api_token)
         else:
             raise ValueError(f"Unknown detection model type: {model_type}")
 
@@ -103,38 +112,129 @@ def main():
     # Initialize the factory
     detection_factory = FactoryDetectionInterface()
 
-    # Specify the model type (DINOX_DETECTION in this case)
-    model_type = ModelNameRegistryDetection.DINOX_DETECTION.value
+    ############### DINO-X ######################
+    # # Specify the model type (DINOX_DETECTION in this case)
+    # model_type = ModelNameRegistryDetection.DINOX_DETECTION.value
+    #
+    # # Create the DINOXDetection model
+    # dinox_detection_model = detection_factory.create_model(model_type)
+    #
+    # # Initialize the model
+    # dinox_detection_model.init_model()
+    #
+    # # Set prompts for the detection model
+    # dinox_detection_model.set_prompt(["wheel", "eye", "helmet", "mouse", "mouth", "vehicle", "steering", "ear", "nose"])
+    #
+    # # Load and set the image
+    # input_image = cv2.imread("/home/nehoray/PycharmProjects/UniversaLabeler/ModelsFactory/Detection/DINO_X_workspace/DINO-X-API/assets/demo.png")
+    # if input_image is None:
+    #     raise ValueError("Failed to load input image. Check the file path.")
+    #
+    # dinox_detection_model.set_image(input_image)
+    #
+    # # Run inference and get results
+    # print("Running inference...")
+    # results = dinox_detection_model.get_result()
+    #
+    # # Retrieve formatted bounding boxes, labels, and scores
+    # detection_boxes = dinox_detection_model.get_boxes()
+    # print("Detection Results:")
+    # print(detection_boxes)
+    #
+    # # Save the annotated image
+    # output_path = "output/detected.png"  # Replace with the desired output path
+    # dinox_detection_model.save_result(output_path)
+    # print(f"Annotated image saved to {output_path}")
 
-    # Create the DINOXDetection model
-    dinox_detection_model = detection_factory.create_model(model_type)
+    # # Specify the model type (DINOX_DETECTION in this case)
+    # model_type = ModelNameRegistryDetection.DINOX_DETECTION.value
+    #
+    # # Create the DINOXDetection model
+    # dinox_detection_model = detection_factory.create_model(model_type)
+    #
+    # # Initialize the model
+    # dinox_detection_model.init_model()
+    #
+    # # Set prompts for the detection model
+    # dinox_detection_model.set_prompt(["wheel", "eye", "helmet", "mouse", "mouth", "vehicle", "steering", "ear", "nose"])
+    #
+    # # Load and set the image
+    # input_image = cv2.imread("/home/nehoray/PycharmProjects/UniversaLabeler/ModelsFactory/Detection/DINO_X_workspace/DINO-X-API/assets/demo.png")
+    # if input_image is None:
+    #     raise ValueError("Failed to load input image. Check the file path.")
+    #
+    # dinox_detection_model.set_image(input_image)
+    #
+    # # Run inference and get results
+    # print("Running inference...")
+    # results = dinox_detection_model.get_result()
+    #
+    # # Retrieve formatted bounding boxes, labels, and scores
+    # detection_boxes = dinox_detection_model.get_boxes()
+    # print("Detection Results:")
+    # print(detection_boxes)
+    #
+    # # Save the annotated image
+    # output_path = "output/detected.png"  # Replace with the desired output path
+    # dinox_detection_model.save_result(output_path)
+    # print(f"Annotated image saved to {output_path}")
 
-    # Initialize the model
-    dinox_detection_model.init_model()
+    model_type = ModelNameRegistryDetection.TREX2.value
+    trex2_detection_model = detection_factory.create_model(model_type)
+    trex2_detection_model.init_model()
+    # Define prompts with category names and bounding boxes
+    # categories_with_boxes = {
+    #     "bus": [[313,139,410,252]],  # Category: car
+    #     "car": [[470,162,516,199]],  # Category: person
+    # }
+    categories_with_boxes = {
+        "car": [[468.04302978515625, 159.61497497558594, 514.6063842773438, 199.15711975097656]],
+    }
 
-    # Set prompts for the detection model
-    dinox_detection_model.set_prompt(["wheel", "eye", "helmet", "mouse", "mouth", "vehicle", "steering", "ear", "nose"])
+    # [468.04302978515625, 159.61497497558594, 514.6063842773438, 199.15711975097656]
+    input_image = cv2.imread("/home/nehoray/PycharmProjects/UniversaLabeler/data/street/img.png")
+    trex2_detection_model.set_image(input_image)
+    trex2_detection_model.set_prompt(categories_with_boxes)
+    trex2_detection_model.get_result()
+    trex2_detection_model.save_result("output_directory/annotated_image.jpg")
 
-    # Load and set the image
-    input_image = cv2.imread("/home/nehoray/PycharmProjects/UniversaLabeler/ModelsFactory/Detection/DINO_X_workspace/DINO-X-API/assets/demo.png")
-    if input_image is None:
-        raise ValueError("Failed to load input image. Check the file path.")
 
-    dinox_detection_model.set_image(input_image)
 
-    # Run inference and get results
-    print("Running inference...")
-    results = dinox_detection_model.get_result()
 
-    # Retrieve formatted bounding boxes, labels, and scores
-    detection_boxes = dinox_detection_model.get_boxes()
-    print("Detection Results:")
-    print(detection_boxes)
 
-    # Save the annotated image
-    output_path = "output/detected.png"  # Replace with the desired output path
-    dinox_detection_model.save_result(output_path)
-    print(f"Annotated image saved to {output_path}")
+
+    # model = TRex2DetectionModel(token="9d01f376fbf2bb13123c85a82da8e154")
+    # model.init_model()
+    #
+    # # Set the image
+    # input_image = cv2.imread("/home/nehoray/PycharmProjects/tests_wotkspace/T-Rex/assets/trex2_api_examples/interactive1.jpeg")
+    # model.set_image(input_image)
+    #
+    # # Define prompts with category names and bounding boxes
+    # categories_with_boxes = {
+    #     "car": [[100, 100, 200, 200], [300, 300, 400, 400]],  # Category: car
+    #     "person": [[150, 150, 250, 250]],  # Category: person
+    # }
+    # model.set_prompt(categories_with_boxes)
+    #
+    # # Run inference
+    # results = model.get_result()
+    # print("Results:", results)
+    #
+    # # Save annotated image
+    # output_path = "output_directory/annotated_image.jpg"
+    # model.save_result(output_path)
+
+
+
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     main()

@@ -20,7 +20,7 @@ class GroundingDINO_Model(DetectionBaseModel):
     """
     GroundingDINO_Model handles inference using the GroundingDINO API, inheriting from DetectionBaseModel.
     """
-    def __init__(self, model_config_path: str, model_checkpoint_path: str, cpu_only: bool = False, model_name=ModelNameRegistryDetection.DINO):
+    def __init__(self, model_config_path: str, model_checkpoint_path: str, cpu_only: bool = False, model_name=ModelNameRegistryDetection.DINO.value):
         super().__init__(prompt=None)
         self.model_config_path = model_config_path
         self.model_checkpoint_path = model_checkpoint_path

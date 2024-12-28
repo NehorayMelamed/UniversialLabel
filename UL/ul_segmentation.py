@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from typing import Dict, List, Union
 from Factories.factory_segmentation_interface import FactorySegmentationInterface
+from ModelsFactory.Segmentation.segmentation_base_model import SegmentationBaseModel
 from algorithms.seg_selector_backup import SegSelector
 from common.model_name_registry import ModelNameRegistrySegmentation
 
@@ -19,7 +20,8 @@ class ULSegmentation:
                  class_priorities: Dict[str, int] = None,
                  model_priorities: Dict[str, int] = None,
                  use_segselector: bool = True,
-                 model_names: List[Union[str, ModelNameRegistrySegmentation]] = None):
+                 model_names: List[Union[str, ModelNameRegistrySegmentation]] = None,
+                 sam2_predict_on_bbox: List[np.ndarray] = None):
         """
         Initialize the UniversalLabelerSegmentation class.
 
@@ -30,16 +32,18 @@ class ULSegmentation:
             model_priorities (Dict[str, int]): Dictionary of model priorities for SegSelector.
             use_segselector (bool): Flag indicating whether to use SegSelector.
             model_names (List[Union[str, ModelNameRegistrySegmentation]]): List of model names. Defaults to None.
+            sam2_predict_on_bbox (List[np.ndarray]): Bounding boxes to use for SAM2 predictions. Defaults to None.
         """
         self.image = self._load_image(image_input)
         self.segmentation_class = [cls.lower() for cls in segmentation_class]
         self.class_priorities = class_priorities if class_priorities else {}
         self.model_priorities = model_priorities if model_priorities else {}
         self.use_segselector = use_segselector
+        self.sam2_predict_on_bbox = sam2_predict_on_bbox
 
         # Load models
         self.factory = FactorySegmentationInterface()
-        self.models = []
+        self.models: [SegmentationBaseModel] = []
         if model_names is None:
             model_names = self.factory.available_models()
         self.models = self._load_models(model_names)
@@ -87,12 +91,19 @@ class ULSegmentation:
 
         # Process each model
         for model in self.models:
-            model_name = model.__class__.__name__
+            model_name = model.model_name
             model.set_image(self.image)
-
-            # Ensure get_result is run before get_masks
-            model.get_result()
-            results[model_name] = model.get_masks()
+            print(f"running image for model - {model_name}")
+            if model_name == ModelNameRegistrySegmentation.SAM2.value:
+                # If SAM2 is selected, process with bounding boxes if provided
+                if self.sam2_predict_on_bbox:
+                    results[model_name] = model.get_result(boxes=self.sam2_predict_on_bbox)
+                else:
+                    results[model_name] = model.get_result()
+            else:
+                # Ensure get_result is run before get_masks
+                model.get_result()
+                results[model_name] = model.get_masks()
 
         # Format class names to lowercase
         for model_name, result in results.items():
@@ -155,30 +166,38 @@ class ULSegmentation:
 
             # Call the model's save_colored_result to save its results
             output_path = os.path.join(model_output_dir, f"{model_name}_result.png")
-            try:
-                model_instance.save_colored_result(output_path)
-                print(f"Saved results for {model_name} to {output_path}")
-            except Exception as e:
-                print(f"Error saving results for {model_name}: {e}")
+            # try:
+            print(model_instance)
+            model_instance.save_colored_result(output_path)
+            print(f"Saved results for {model_name} to {output_path}")
+            # except Exception as e:
+            #     print(f"Error saving results for {model_name}: {e}")
 
 
     def _get_model_instance_by_name(self, model_name: str):
         """Get the model instance by its name."""
         for model in self.models:
-            if model.__class__.__name__ == model_name:
+            if model.model_name == model_name:
                 return model
         return None
 
 if __name__ == "__main__":
-    image_path = "/home/nehoray/PycharmProjects/test_opengeos/test_image.png"
-    segmentation_class = ["road", "buildings", "pavement", "greenery"]
+    image_path = "/home/nehoray/PycharmProjects/UniversaLabeler/data/street/img.png"
+    segmentation_class = ["car", "bus",]
+    bounding_boxes = [
+        np.array([45, 82, 123, 181]),
+        np.array([470, 160, 513, 199]),
+        np.array([305, 136, 427, 255]),
+    ]
+
     ul_segmentation = ULSegmentation(
         image_input=image_path,
         segmentation_class=segmentation_class,
         class_priorities={},
         model_priorities={},
         use_segselector=True,
-        model_names=[ModelNameRegistrySegmentation.SAM.value, ModelNameRegistrySegmentation.OPEN_EARTH_MAP.value]
+        model_names=[ModelNameRegistrySegmentation.SAM2.value, ModelNameRegistrySegmentation.SAM.value, ModelNameRegistrySegmentation.DINOX_SEGMENTATION.value],
+        sam2_predict_on_bbox=bounding_boxes
     )
 
     # Load the models
@@ -188,5 +207,4 @@ if __name__ == "__main__":
     formatted_result, individual_results = ul_segmentation.process_image()
 
     # Save individual model results
-    ul_segmentation.save_results(individual_results, "output_directory_models")
-
+    ul_segmentation.save_results(individual_results, "test_29_12")
