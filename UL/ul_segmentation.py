@@ -46,7 +46,14 @@ class ULSegmentation:
         self.models: [SegmentationBaseModel] = []
         if model_names is None:
             model_names = self.factory.available_models()
+
+        ## If user pass the trex parameters but not specify it as model
+        if ModelNameRegistrySegmentation.SAM2.value not in model_names and sam2_predict_on_bbox is not None:
+            model_names.append(ModelNameRegistrySegmentation.SAM2.value)
+
         self.models = self._load_models(model_names)
+
+
 
         # Initialize SegSelector
         self.seg_selector = SegSelector()
@@ -196,7 +203,7 @@ if __name__ == "__main__":
         class_priorities={},
         model_priorities={},
         use_segselector=True,
-        model_names=[ModelNameRegistrySegmentation.SAM2.value, ModelNameRegistrySegmentation.SAM.value, ModelNameRegistrySegmentation.DINOX_SEGMENTATION.value],
+        model_names=[ModelNameRegistrySegmentation.SAM2.value,  ModelNameRegistrySegmentation.DINOX_SEGMENTATION.value],
         sam2_predict_on_bbox=bounding_boxes
     )
 

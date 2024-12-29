@@ -3,6 +3,15 @@ import cv2
 import numpy as np
 from typing import Dict, List, Union
 from Factories.factory_detection_interface import FactoryDetectionInterface
+from common.model_name_registry import ModelNameRegistryDetection, MOST_CONFIDENCE
+from sahi.sachi_detection_wrapper import SahiDetectionWrapper
+from algorithms.nms_handler import NMSHandler
+
+import os
+import cv2
+import numpy as np
+from typing import Dict, List, Union
+from Factories.factory_detection_interface import FactoryDetectionInterface
 from UL.universal_labeler import UniversalLabeler
 from common.model_name_registry import ModelNameRegistryDetection, MOST_CONFIDENCE
 from sahi.sachi_detection_wrapper import SahiDetectionWrapper
@@ -18,12 +27,12 @@ class ULDetection:
                  image_input: Union[str, np.ndarray],
                  detection_class: List[str],
                  class_priorities: Dict[str, int] = None,
-                 model_priorities: Dict[ModelNameRegistryDetection, int] = None,
+                 model_priorities: Dict[str, int] = None,
                  use_nms: bool = True,
-                 sahi_models_params: Dict[ModelNameRegistryDetection, Dict] = None,
-                 model_names: List[ModelNameRegistryDetection] = None,
+                 sahi_models_params: Dict[str, Dict] = None,
+                 model_names: List[str] = None,
                  filter_unwanted_classes: bool = True,
-                 trex_input_class_bbox: Dict[str, Union[str, List[int], ModelNameRegistryDetection]] = None):
+                 trex_input_class_bbox: Dict[str, Union[str, List[int], str]] = None):
         """
         Initialize the ULDetection class.
 
@@ -31,12 +40,12 @@ class ULDetection:
             image_input (Union[str, np.ndarray]): Input image either as a path or a numpy array.
             detection_class (List[str]): List of detection classes or prompts to be used for the detections.
             class_priorities (Dict[str, int]): Dictionary of class priorities for NMS. Defaults to None.
-            model_priorities (Dict[ModelNameRegistryDetection, int]): Dictionary of model priorities for NMS. Defaults to None.
+            model_priorities (Dict[str, int]): Dictionary of model priorities for NMS. Defaults to None.
             use_nms (bool): Flag to indicate whether to use NMS. Defaults to True.
-            sahi_models_params (Dict[ModelNameRegistryDetection, Dict]): Dictionary of SAHI models and their parameters.
-            model_names (List[ModelNameRegistryDetection]): List of model names. Defaults to None.
+            sahi_models_params (Dict[str, Dict]): Dictionary of SAHI models and their parameters.
+            model_names (List[str]): List of model names as strings. Defaults to None.
             filter_unwanted_classes (bool): Flag to enable or disable filtering of unwanted classes. Defaults to True.
-            trex_input_class_bbox (Dict[str, Union[str, List[int], ModelNameRegistryDetection]]): Configuration for TREX input.
+            trex_input_class_bbox (Dict[str, Union[str, List[int], str]]): Configuration for TREX input.
         """
         # Initialize Image
         self.image = self._load_image(image_input)
@@ -53,7 +62,12 @@ class ULDetection:
         # Create models
         self.factory = FactoryDetectionInterface()
         if model_names is None:
-            model_names = self.factory.available_models()
+            model_names = [model.value for model in ModelNameRegistryDetection]
+
+        # if the user pass the trex args but not to the models
+        if ModelNameRegistryDetection.TREX2.value not in model_names and trex_input_class_bbox is not None:
+            model_names.append(ModelNameRegistryDetection.TREX2.value)
+
         self.models = self._load_models(model_names)
 
         # Initialize NMS handler
@@ -71,12 +85,12 @@ class ULDetection:
         else:
             raise ValueError("Unsupported image input type. Must be a file path or a numpy array.")
 
-    def _load_models(self, model_names: List[ModelNameRegistryDetection]) -> List:
+    def _load_models(self, model_names: List[str]) -> List:
         models = []
         for model_name in model_names:
             model = self.factory.create_model(model_name)
             model.init_model()
-            if model_name != ModelNameRegistryDetection.TREX2:
+            if model_name != ModelNameRegistryDetection.TREX2.value:
                 model.set_prompt(self.detection_class)
             models.append(model)
         return models
@@ -94,7 +108,7 @@ class ULDetection:
                 sahi_params = self.sahi_models_params.get(model_name, {})
                 sahi_wrapper.set_parameters(sahi_params)
                 results[model_name] = sahi_wrapper.get_bbox(self.image)
-            elif model_name == ModelNameRegistryDetection.TREX2:
+            elif model_name == ModelNameRegistryDetection.TREX2.value:
                 trex_prompts = self._build_trex_prompts(results)
                 model.set_prompt(trex_prompts)
                 model.get_result()
@@ -132,8 +146,8 @@ class ULDetection:
                             best_bbox = bbox
                 if best_bbox:
                     trex_prompts[class_name] = [best_bbox]
-            elif isinstance(config, ModelNameRegistryDetection):
-                model_result = results.get(config.value)
+            elif isinstance(config, str):
+                model_result = results.get(config)
                 if model_result:
                     highest_score_idx = np.argmax(model_result['scores'])
                     trex_prompts[class_name] = [model_result['bboxes'][highest_score_idx]]
@@ -164,52 +178,67 @@ class ULDetection:
 
         for model_name, result in results.items():
             output_path = os.path.join(output_dir, f"{model_name}_result.jpg")
-            self._save_image_with_boxes(result, output_path)
+            self._save_image_with_boxes(result, output_path, model_name)
 
         if 'bboxes' in nms_results and len(nms_results['bboxes']) > 0:
             output_path = os.path.join(output_dir, "nms_result.jpg")
-            self._save_image_with_boxes(nms_results, output_path)
+            self._save_image_with_boxes(nms_results, output_path, "NMS")
         else:
             print("No NMS results to save.")
 
-    def _save_image_with_boxes(self, result: Dict[str, List], output_path: str):
+    def _save_image_with_boxes(self, result: Dict[str, List], output_path: str, model_name: str):
         output_image = self.image.copy()
         for bbox, label, score in zip(result['bboxes'], result['labels'], result['scores']):
             x_min, y_min, x_max, y_max = map(int, bbox)
             cv2.rectangle(output_image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-            cv2.putText(output_image, f"{label} ({score:.2f})", (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+            text = f"{label} ({score:.2f}) [{model_name}]"
+            cv2.putText(output_image, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 255, 0), 2)
 
         cv2.imwrite(output_path, output_image)
         print(f"Detection result saved to {output_path}")
+
 
 if __name__ == "__main__":
     image_path = "/home/nehoray/PycharmProjects/UniversaLabeler/data/street/img.png"
     detection_classes = ["car", "bus"]
     # trex_input_class_bbox = {
     #     "car": MOST_CONFIDENCE,
-    #     "bus": MOST_CONFIDENCE
+    #     "bus": MOST_CONFIDENCE,
     # }
+
+    # trex_input_class_bbox = {
+    #     "bus": [313,141,406,249],
+    #     "car": [471,162,514,197],
+    # }
+
     trex_input_class_bbox = {
-        "bus": [313, 141, 406,249],
-        "car":[471, 162, 514, 197]
+        "bus": ModelNameRegistryDetection.YOLO_WORLD.value,
+        "car": ModelNameRegistryDetection.YOLO_WORLD.value,
     }
 
+
+
+
     sahi_model_params = {
-        ModelNameRegistryDetection.YOLO_WORLD: {
+        ModelNameRegistryDetection.YOLO_WORLD.value: {
             'slice_dimensions': (256, 256),
             'detection_conf_threshold': 0.7
+        },
+        ModelNameRegistryDetection.YOLO_ALFRED.value: {
+            'slice_dimensions': (128, 128),
+            'zoom_factor': 1.5
         }
     }
 
     ul_detection = ULDetection(
         image_input=image_path,
         detection_class=detection_classes,
-        # class_priorities={"car": 2, "person": 1},
-        model_priorities={ModelNameRegistryDetection.YOLO_WORLD: 2, ModelNameRegistryDetection.TREX2: 0},
+        class_priorities={"car": 2, "person": 1},
+        model_priorities={ModelNameRegistryDetection.YOLO_WORLD.value: 2, ModelNameRegistryDetection.DINO.value: 1},
         use_nms=True,
-        # sahi_models_params=sahi_model_params,
-        model_names=[ModelNameRegistryDetection.YOLO_WORLD, ModelNameRegistryDetection.TREX2],
+        sahi_models_params=sahi_model_params,
+        model_names=[ModelNameRegistryDetection.YOLO_WORLD.value, ModelNameRegistryDetection.YOLO_ALFRED.value],
         filter_unwanted_classes=True,
         trex_input_class_bbox=trex_input_class_bbox
     )
@@ -218,5 +247,5 @@ if __name__ == "__main__":
     nms_results, individual_results = ul_detection.process_image()
 
     # Save the results
-    output_directory = "./output/trex_with_box"
+    output_directory = "./output"
     ul_detection.save_results(individual_results, nms_results, output_directory)
