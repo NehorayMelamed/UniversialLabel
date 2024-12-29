@@ -24,13 +24,13 @@ Below is the list of available models in the UniversaLabeler project, along with
 |     Waldo     |    prompt    |  Detection   |
 |  Yolo regev   |   classes    |  Detection   |
 | OpenEarthMap  |   classes    | Segmentation |
-|     SAM2      |     none     | Segmentation |
+|     SAM2      |  bbox/none   | Segmentation |
 | Google vision |    prompt    |  Detection   |
 |      SAM      |     none     | Segmentation |   
 |    Dino-X     |    prompt    |  Detection   |   
 |    Dino-X     |    prompt    | Segmentation |   
-|   OpenGeos    |    prompt    |  Detection   |   
-
+|   OpenGeos    |    prompt    |  Detection   |
+|     TREX      |  reference   |  Detection   |   
 
 
 ### Explanation:
@@ -51,6 +51,7 @@ Below is the list of available models in the UniversaLabeler project, along with
 
 ### Installing the Environment
 
+!! my advice - go for Conda (its fix some issues which may appear while using venv and pip) !!!
 
 1.  #### Clone the repository:
     ```bash
@@ -70,6 +71,8 @@ Below is the list of available models in the UniversaLabeler project, along with
     ```
     
 4. #### Install GroundingDINO 
+    !!! no needed anymore(see in  requirements.txt) !!!
+
     (base on their installation guid - https://github.com/IDEA-Research/GroundingDIN )
     1. cd ModelsFactory/Detection/GroundingDINO_workspace/git_workspace/GroundingDINO/
     2. pip install -e .
@@ -82,6 +85,8 @@ Below is the list of available models in the UniversaLabeler project, along with
 
 
 6. #### Install SAM
+    !!! no needed anymore(see in  requirements.txt) !!!
+
     note that SAM has some issues during its installation, if ur facing with something like "ModuleNotFoundError: No module named '_bz2'"
     please visit the next page -> https://stackoverflow.com/questions/12806122/missing-python-bz2-module
     *see also the /issues/ModuleNotFoundError/bz2*
@@ -215,6 +220,12 @@ mkdir google_vision_api_key
 ```      
 3. and place there the json key from google
 
+
+## Issues
+1. for the SEEM, i got some issue with the -  pip install mpi4py
+in the end i install it using the conda conda install mpi4py
+2. for the "ModuleNotFoundError: No module named '_bz2'"
+    see above in the SAM issues section.
 
 
 ## New and Last Updates
