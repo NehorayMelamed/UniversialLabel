@@ -128,6 +128,9 @@ class ULDetection:
         results = {}
 
         # Process each model
+        # Ensure TREX2 runs last
+        self.models.sort(key=lambda m: m.model_name == ModelNameRegistryDetection.TREX2.value)
+
         for model in self.models:
             model_name = model.model_name
             model.set_image(self.image)
@@ -201,98 +204,135 @@ class ULDetection:
 
         return filtered_results
 
-    def save_results(self, results: Dict[str, Dict[str, List]], nms_results: Dict[str, List], output_dir: str):
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-        for model_name, result in results.items():
-            output_path = os.path.join(output_dir, f"{model_name}_result.jpg")
-            self._save_image_with_boxes(result, output_path, model_name)
-
-        if 'bboxes' in nms_results and len(nms_results['bboxes']) > 0:
-            output_path = os.path.join(output_dir, "nms_result.jpg")
-            self._save_image_with_boxes(nms_results, output_path, "NMS")
-        else:
-            print("No NMS results to save.")
-
     def _save_image_with_boxes(self, result: Dict[str, List], output_path: str, model_name: str):
+        """
+        Save detection results to an image file, drawing bounding boxes and class labels.
+
+        Args:
+            result (Dict[str, List]): Detection result containing 'bboxes', 'labels', and 'scores'.
+            output_path (str): File path to save the image.
+            model_name (str): Name of the model for labeling purposes.
+        """
         output_image = self.image.copy()
+        colors = {}  # Store unique colors for each class
         for bbox, label, score in zip(result['bboxes'], result['labels'], result['scores']):
+            # Assign a unique color to each class
+            if label not in colors:
+                np.random.seed(hash(label) % 2 ** 32)
+                colors[label] = tuple(np.random.randint(0, 256, 3).tolist())
+            color = colors[label]
+
             x_min, y_min, x_max, y_max = map(int, bbox)
-            cv2.rectangle(output_image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+            cv2.rectangle(output_image, (x_min, y_min), (x_max, y_max), color, 2)
             text = f"{label} ({score:.2f}) [{model_name}]"
-            cv2.putText(output_image, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                        (0, 255, 0), 2)
+            cv2.putText(output_image, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
         cv2.imwrite(output_path, output_image)
         print(f"Detection result saved to {output_path}")
 
+    def save_results(self, results: Dict[str, Dict[str, List]], nms_results: Dict[str, List], output_dir: str):
+        """
+        Save detection results for each model and the combined NMS results.
 
+        Args:
+            results (Dict[str, Dict[str, List]]): Individual model results.
+            nms_results (Dict[str, List]): Combined NMS results.
+            output_dir (str): Directory to save the results.
+        """
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        # Save individual model results
+        for model_name, result in results.items():
+            model_output_dir = os.path.join(output_dir, model_name)
+            os.makedirs(model_output_dir, exist_ok=True)
+            output_path = os.path.join(model_output_dir, f"{model_name}_result.jpg")
+            self._save_image_with_boxes(result, output_path, model_name)
+
+        # Save combined NMS results
+        if 'bboxes' in nms_results and len(nms_results['bboxes']) > 0:
+            nms_output_path = os.path.join(output_dir, "nms_result.jpg")
+            self._save_image_with_boxes(nms_results, nms_output_path, "NMS")
+        else:
+            print("No NMS results to save.")
 
 
 if __name__ == "__main__":
     # Image file
-    image_path = "/home/nehoray/PycharmProjects/UniversaLabeler/data/street/img.png"
-
+    image_path1 = "/home/nehoray/PycharmProjects/UniversaLabeler/data/tested_image/Soi/WhatsApp Image 2024-12-29 at 13.15.14 (4).jpeg"
+    image_path2 = "/home/nehoray/PycharmProjects/UniversaLabeler/data/tested_image/Soi/WhatsApp Image 2024-12-29 at 13.15.14.jpeg"
     # Regular detection classes
-    detection_classes = ["car", "bus"]
+    detection_classes = ["window", "holes", "doors", "balcony", "roof", "building", "tree"]
 
     # TREX input configuration (if needed)
-    trex_input_class_bbox = {
-        "bus": ModelNameRegistryDetection.YOLO_WORLD.value,  # Source for "bus"
-        "car": [471, 162, 514, 197],  # Manual bounding box for "car"
+    # trex_input_class_bbox = {
+    #     "bus": ModelNameRegistryDetection.YOLO_WORLD.value,  # Source for "bus"
+    #     "car": [471, 162, 514, 197],  # Manual bounding box for "car"
+    # }
+    # trex_input_class_bbox1 = {
+    #     "window": [547,426,617,477],
+    #     "window2":[400,96,417,149],
+    #     "window3": [547,553,620,596]
+    # }
+    trex_input_class_bbox2 = {
+        "window": MOST_CONFIDENCE,
+        "holes": MOST_CONFIDENCE
     }
-
     # SAHI model parameters
-    sahi_model_params = {
-        ModelNameRegistryDetection.YOLO_WORLD.value: {
-            'slice_dimensions': (256, 256),
-            'detection_conf_threshold': 0.7
-        },
-        ModelNameRegistryDetection.YOLO_ALFRED.value: {
-            'slice_dimensions': (128, 128),
-            'zoom_factor': 1.5
-        }
-    }
+    # sahi_model_params = {
+    #     ModelNameRegistryDetection.YOLO_WORLD.value: {
+    #         'slice_dimensions': (256, 256),
+    #         'detection_conf_threshold': 0.7
+    #     },
+    #     ModelNameRegistryDetection.YOLO_ALFRED.value: {
+    #         'slice_dimensions': (128, 128),
+    #         'zoom_factor': 1.5
+    #     }
+    # }
 
     # Create an instance of ULDetection
     ul_detection = ULDetection(
-        image_input=image_path,
+        image_input=image_path2,
         detection_class=detection_classes,
-        class_priorities={"car": 2, "bus": 1},
-        model_priorities={ModelNameRegistryDetection.YOLO_WORLD.value: 2, ModelNameRegistryDetection.DINO.value: 1},
+        class_priorities={},
+        model_priorities={ModelNameRegistryDetection.YOLO_WORLD.value: 2, ModelNameRegistryDetection.OPENGEOS.value: 1},
         use_nms=True,
-        sahi_models_params=sahi_model_params,
-        model_names=[ModelNameRegistryDetection.YOLO_WORLD.value, ModelNameRegistryDetection.YOLO_ALFRED.value],
+        # sahi_models_params=sahi_model_params,
+        model_names=[ModelNameRegistryDetection.YOLO_WORLD.value,  #, ModelNameRegistryDetection.OPENGEOS.value,
+                     ModelNameRegistryDetection.DINOX_DETECTION.value,
+                     ModelNameRegistryDetection.TREX2.value,
+
+                     ],
         filter_unwanted_classes=True,
-        trex_input_class_bbox=trex_input_class_bbox
+        trex_input_class_bbox=trex_input_class_bbox2
     )
 
     # Set the image (if a different image needs to be loaded)
-    ul_detection.set_image(image_path)
+    # ul_detection.set_image(image_path2)
 
     # Update SAHI model parameters (if needed after initialization)
     # u can see the full sahi configuration in its file
-    ul_detection.set_sahi_parameters({
-        ModelNameRegistryDetection.YOLO_WORLD.value: {
-            'slice_dimensions': (512, 512),
-            'detection_conf_threshold': 0.6
-        }
-    })
+    # ul_detection.set_sahi_parameters({
+    #     ModelNameRegistryDetection.YOLO_WORLD.value: {
+    #         'slice_dimensions': (512, 512),
+    #         'detection_conf_threshold': 0.6
+    #     }
+    # })
 
-    # Update prompts (if detection classes need to be modified)
-    ul_detection.set_prompts(["car", "person", "bicycle"])
-
-    # Update TREX inputs
-    ul_detection.set_trex_input_class_bbox({
-        "car": [471, 162, 514, 197],  # Manual bounding box for "car"
-    })
+    # # Update prompts (if detection classes need to be modified)
+    # ul_detection.set_prompts(["car", "person", "bicycle"])
+    #
+    # # Update TREX inputs
+    # ul_detection.set_trex_input_class_bbox({
+    #     "car": [471, 162, 514, 197],  # Manual bounding box for "car"
+    # })
 
     # Process the image
     nms_results, individual_results = ul_detection.process_image()
 
     # Save the results
-    output_directory = "./output"
+    output_directory = "./test_soi4"
     ul_detection.save_results(individual_results, nms_results, output_directory)
+
 
 
