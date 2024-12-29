@@ -7,16 +7,6 @@ from common.model_name_registry import ModelNameRegistryDetection, MOST_CONFIDEN
 from sahi.sachi_detection_wrapper import SahiDetectionWrapper
 from algorithms.nms_handler import NMSHandler
 
-import os
-import cv2
-import numpy as np
-from typing import Dict, List, Union
-from Factories.factory_detection_interface import FactoryDetectionInterface
-from UL.universal_labeler import UniversalLabeler
-from common.model_name_registry import ModelNameRegistryDetection, MOST_CONFIDENCE
-from sahi.sachi_detection_wrapper import SahiDetectionWrapper
-from algorithms.nms_handler import NMSHandler
-
 class ULDetection:
     """
     ULDetection is a universal labeler detection class that processes an image using multiple detection models
@@ -94,6 +84,45 @@ class ULDetection:
                 model.set_prompt(self.detection_class)
             models.append(model)
         return models
+
+    def set_image(self, image_input: Union[str, np.ndarray]):
+        """
+        Set a new image for processing.
+
+        Args:
+            image_input (Union[str, np.ndarray]): Input image either as a path or a numpy array.
+        """
+        self.image = self._load_image(image_input)
+
+    def set_sahi_parameters(self, sahi_models_params: Dict[str, Dict]):
+        """
+        Set SAHI parameters for specific models.
+
+        Args:
+            sahi_models_params (Dict[str, Dict]): Dictionary of SAHI models and their parameters.
+        """
+        self.sahi_models_params = sahi_models_params
+
+    def set_prompts(self, detection_class: List[str]):
+        """
+        Set new detection classes (prompts).
+
+        Args:
+            detection_class (List[str]): List of detection classes or prompts to be used for the detections.
+        """
+        self.detection_class = detection_class
+        for model in self.models:
+            if model.model_name != ModelNameRegistryDetection.TREX2.value:
+                model.set_prompt(detection_class)
+
+    def set_trex_input_class_bbox(self, trex_input_class_bbox: Dict[str, Union[str, List[int], str]]):
+        """
+        Set TREX input class bounding boxes.
+
+        Args:
+            trex_input_class_bbox (Dict[str, Union[str, List[int], str]]): TREX configuration for bounding boxes.
+        """
+        self.trex_input_class_bbox = trex_input_class_bbox
 
     def process_image(self) -> Dict[str, Dict[str, List]]:
         results = {}
@@ -199,27 +228,22 @@ class ULDetection:
         print(f"Detection result saved to {output_path}")
 
 
+
+
 if __name__ == "__main__":
+    # Image file
     image_path = "/home/nehoray/PycharmProjects/UniversaLabeler/data/street/img.png"
+
+    # Regular detection classes
     detection_classes = ["car", "bus"]
-    # trex_input_class_bbox = {
-    #     "car": MOST_CONFIDENCE,
-    #     "bus": MOST_CONFIDENCE,
-    # }
 
-    # trex_input_class_bbox = {
-    #     "bus": [313,141,406,249],
-    #     "car": [471,162,514,197],
-    # }
-
+    # TREX input configuration (if needed)
     trex_input_class_bbox = {
-        "bus": ModelNameRegistryDetection.YOLO_WORLD.value,
-        "car": ModelNameRegistryDetection.YOLO_WORLD.value,
+        "bus": ModelNameRegistryDetection.YOLO_WORLD.value,  # Source for "bus"
+        "car": [471, 162, 514, 197],  # Manual bounding box for "car"
     }
 
-
-
-
+    # SAHI model parameters
     sahi_model_params = {
         ModelNameRegistryDetection.YOLO_WORLD.value: {
             'slice_dimensions': (256, 256),
@@ -231,10 +255,11 @@ if __name__ == "__main__":
         }
     }
 
+    # Create an instance of ULDetection
     ul_detection = ULDetection(
         image_input=image_path,
         detection_class=detection_classes,
-        class_priorities={"car": 2, "person": 1},
+        class_priorities={"car": 2, "bus": 1},
         model_priorities={ModelNameRegistryDetection.YOLO_WORLD.value: 2, ModelNameRegistryDetection.DINO.value: 1},
         use_nms=True,
         sahi_models_params=sahi_model_params,
@@ -242,6 +267,26 @@ if __name__ == "__main__":
         filter_unwanted_classes=True,
         trex_input_class_bbox=trex_input_class_bbox
     )
+
+    # Set the image (if a different image needs to be loaded)
+    ul_detection.set_image(image_path)
+
+    # Update SAHI model parameters (if needed after initialization)
+    # u can see the full sahi configuration in its file
+    ul_detection.set_sahi_parameters({
+        ModelNameRegistryDetection.YOLO_WORLD.value: {
+            'slice_dimensions': (512, 512),
+            'detection_conf_threshold': 0.6
+        }
+    })
+
+    # Update prompts (if detection classes need to be modified)
+    ul_detection.set_prompts(["car", "person", "bicycle"])
+
+    # Update TREX inputs
+    ul_detection.set_trex_input_class_bbox({
+        "car": [471, 162, 514, 197],  # Manual bounding box for "car"
+    })
 
     # Process the image
     nms_results, individual_results = ul_detection.process_image()
