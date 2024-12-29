@@ -22,7 +22,7 @@ Visit [here](https://ai.meta.com/datasets/segment-anything-video-downloads/) to 
 
 ### Notebooks
 
-To load and visualize the SA-V training set annotations, refer to the example [sav_visualization_example.ipynb](./sav_visualization_example.ipynb) notebook.
+To load and visualize the SA-V training set annotations, refer to the example [sav_visualization_example.ipynb](sav_visualization_example.ipynb) notebook.
 
 ### SA-V train
 
@@ -159,6 +159,6 @@ In the paper for the experiments on SA-V val and test, we run inference on the 2
 
 ## License
 
-The evaluation code is licensed under the [BSD 3 license](./LICENSE). Please refer to the paper for more details on the models. The videos and annotations in SA-V Dataset are released under CC BY 4.0.
+The evaluation code is licensed under the [BSD 3 license](LICENSE). Please refer to the paper for more details on the models. The videos and annotations in SA-V Dataset are released under CC BY 4.0.
 
-Third-party code: the evaluation software is heavily adapted from [`VOS-Benchmark`](https://github.com/hkchengrex/vos-benchmark) and [`DAVIS`](https://github.com/davisvideochallenge/davis2017-evaluation) (with their licenses in [`LICENSE_DAVIS`](./LICENSE_DAVIS) and [`LICENSE_VOS_BENCHMARK`](./LICENSE_VOS_BENCHMARK)).
+Third-party code: the evaluation software is heavily adapted from [`VOS-Benchmark`](https://github.com/hkchengrex/vos-benchmark) and [`DAVIS`](https://github.com/davisvideochallenge/davis2017-evaluation) (with their licenses in [`LICENSE_DAVIS`](LICENSE_DAVIS) and [`LICENSE_VOS_BENCHMARK`](LICENSE_VOS_BENCHMARK)).
