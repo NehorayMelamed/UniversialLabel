@@ -6,6 +6,13 @@ pillow>=8.2.0
 kornia>=0.6.0
 matplotlib
 transformers~=4.46
+albumentations
+einops
+rasterio~=1.4.1
+
+### clip from openai
+git+https://github.com/openai/CLIP.git
+
 
 
 ###### dino-x
