@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../")
 import os
 import cv2
 import numpy as np
@@ -297,7 +299,7 @@ if __name__ == "__main__":
         class_priorities={},
         model_priorities={ModelNameRegistryDetection.YOLO_WORLD.value: 2, ModelNameRegistryDetection.OPENGEOS.value: 1},
         use_nms=True,
-        # sahi_models_params=sahi_model_params,
+        sahi_models_params=sahi_model_params,
         model_names=[ModelNameRegistryDetection.YOLO_WORLD.value,  #, ModelNameRegistryDetection.OPENGEOS.value,
                      ModelNameRegistryDetection.DINOX_DETECTION.value,
                      ModelNameRegistryDetection.TREX2.value,
