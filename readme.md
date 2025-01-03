@@ -58,19 +58,15 @@ Below is the list of available models in the UniversaLabeler project, along with
     git clone https://github.com/NehorayMelamed/UniversialLabel.git
     ```
 
-2.  #### Update the `BASE_PROJECT_DIRECTORY_PATH` in `common/general_parameters.py`:
-    ```python
-    BASE_PROJECT_DIRECTORY_PATH = "/your/path/to/UniversaLabeler"
-    ```
 
-3. #### Install all required packages:
+2. #### Install all required packages:
     1. Install Torch base on your OS (https://pytorch.org/get-started/locally/)
     2. install other packages
    ```bash
     pip install -r requirements.txt
     ```
     
-4. #### Install GroundingDINO 
+3. #### Install GroundingDINO 
     !!! no needed anymore(see in  requirements.txt) !!!
 
     (base on their installation guid - https://github.com/IDEA-Research/GroundingDIN )
@@ -78,7 +74,7 @@ Below is the list of available models in the UniversaLabeler project, along with
     2. pip install -e .
 
 
-5. #### Install Mega cli 
+4. #### Install Mega cli 
     base on their website
 
     https://mega.io/cmd#download

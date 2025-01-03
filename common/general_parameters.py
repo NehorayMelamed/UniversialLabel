@@ -1,6 +1,6 @@
 import os
-
-BASE_PROJECT_DIRECTORY_PATH = "/home/nehoray/PycharmProjects/UniversaLabeler"
+from pathlib import Path
+BASE_PROJECT_DIRECTORY_PATH = Path(__file__).parent.parent
 __KEYS_DIRECTORY_PATH = os.path.join(BASE_PROJECT_DIRECTORY_PATH, "keys")
 SECRET_KEY_PATH = os.path.join(__KEYS_DIRECTORY_PATH, "secret_key.txt")
 ENCRYPTED_UTL_PATH = os.path.join(__KEYS_DIRECTORY_PATH, "encrypted_url.txt")
