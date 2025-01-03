@@ -73,14 +73,9 @@ Below is the list of available models in the UniversaLabeler project, along with
     1. cd ModelsFactory/Detection/GroundingDINO_workspace/git_workspace/GroundingDINO/
     2. pip install -e .
 
+    
 
-4. #### Install Mega cli 
-    base on their website
-
-    https://mega.io/cmd#download
-
-
-6. #### Install SAM
+4. #### Install SAM
     !!! no needed anymore(see in  requirements.txt) !!!
 
     note that SAM has some issues during its installation, if ur facing with something like "ModuleNotFoundError: No module named '_bz2'"

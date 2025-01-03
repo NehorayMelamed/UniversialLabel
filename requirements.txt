@@ -10,6 +10,10 @@ albumentations
 einops
 rasterio~=1.4.1
 
+### mega for the pt and pts files
+mega.py
+
+
 ### clip from openai
 git+https://github.com/openai/CLIP.git
 
