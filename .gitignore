@@ -24,8 +24,6 @@ __pycache__/
 # Ignore environment and config files
 .env
 *.env
-*.yaml
-*.yml
 
 # Ignore IDE files
 .vscode/
@@ -59,7 +57,6 @@ new_models_workspace
 
 # Ignore weights and checkpoints directory
 ModelsFactory/checkpoints/
-keys/secret_key.txt
 Segmentation_Models_Factory/
 !data/tested_image/detection/from_sky.jpeg
 !data/tested_image/detection/street.png
