@@ -26,11 +26,35 @@ class SAM2Segmentation(SegmentationBaseModel):
         self.masks = None
         self.labels = []
 
+        # Advanced parameters
+        self.mask_threshold = 0.0
+        self.max_hole_area = 0.0
+        self.max_sprinkle_area = 0.0
+
     def init_model(self):
         """
         Initialize the SAM2 model.
         """
-        self.predictor = SAM2ImagePredictor(build_sam2(self.model_cfg, self.checkpoint_path))
+        self.predictor = SAM2ImagePredictor(
+            build_sam2(self.model_cfg, self.checkpoint_path),
+            mask_threshold=self.mask_threshold,
+            max_hole_area=self.max_hole_area,
+            max_sprinkle_area=self.max_sprinkle_area
+        )
+
+    def set_advanced_parameters(self, mask_threshold: float = 0.0, max_hole_area: float = 0.0, max_sprinkle_area: float = 0.0):
+        """
+        Set advanced parameters for mask generation.
+
+        Args:
+            mask_threshold (float): Threshold for converting mask logits to binary masks.
+            max_hole_area (float): Maximum area of holes to fill in masks.
+            max_sprinkle_area (float): Maximum area of small sprinkles to remove in masks.
+        """
+        self.mask_threshold = mask_threshold
+        self.max_hole_area = max_hole_area
+        self.max_sprinkle_area = max_sprinkle_area
+        print(f"Advanced parameters set: mask_threshold={mask_threshold}, max_hole_area={max_hole_area}, max_sprinkle_area={max_sprinkle_area}")
 
     def set_prompt(self, prompt: str):
         """
@@ -162,7 +186,6 @@ class SAM2Segmentation(SegmentationBaseModel):
         return "SAM2 does not support predefined classes. It generates segmentation masks based on prompts."
 
 
-
 if __name__ == "__main__":
     # Initialize the SAM2 model
     sam2_segmentation = SAM2Segmentation(
@@ -170,6 +193,9 @@ if __name__ == "__main__":
         model_cfg="configs/sam2.1/sam2.1_hiera_l.yaml"
     )
     sam2_segmentation.init_model()
+
+    # Set advanced parameters
+    sam2_segmentation.set_advanced_parameters(mask_threshold=0.5, max_hole_area=20, max_sprinkle_area=10)
 
     # Set the image
     image = cv2.imread("/home/nehoray/PycharmProjects/UniversaLabeler/data/street/img.png")
@@ -189,4 +215,3 @@ if __name__ == "__main__":
     sam2_segmentation.save_colored_result("output/sam2_results.jpg")
 
     a = sam2_segmentation.get_bbox_from_masks()
-
