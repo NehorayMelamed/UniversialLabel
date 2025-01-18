@@ -17,7 +17,7 @@ class WaldoDetectionModel(DetectionBaseModel):
         self.verbose = verbose
         self.model = None
         self.inference_results = None
-        self.model_name = ModelNameRegistryDetection.YOLO_ALFRED.value  # Assign model name
+        self.model_name = ModelNameRegistryDetection.WALDO.value  # Assign model name
 
 
     CLASS_MAPPING = {
