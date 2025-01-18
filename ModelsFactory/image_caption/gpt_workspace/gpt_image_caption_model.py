@@ -268,7 +268,7 @@ class GptImageCaption(BaseModel):
 
 # Example Usage
 if __name__ == "__main__":
-    model = GptImageCaption(api_key="")
+    model = GptImageCaption()
     model.init_model()
     # model.set_image("/home/nehoray/PycharmProjects/UniversaLabeler/data/tested_image/Soi/WhatsApp Image 2024-12-29 at 13.15.14.jpeg")
 
