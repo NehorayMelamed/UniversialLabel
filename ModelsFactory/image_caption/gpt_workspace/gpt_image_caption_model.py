@@ -268,7 +268,7 @@ class GptImageCaption(BaseModel):
 
 # Example Usage
 if __name__ == "__main__":
-    model = GptImageCaption(api_key="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")
+    model = GptImageCaption(api_key="")
     model.init_model()
     # model.set_image("/home/nehoray/PycharmProjects/UniversaLabeler/data/tested_image/Soi/WhatsApp Image 2024-12-29 at 13.15.14.jpeg")
 
