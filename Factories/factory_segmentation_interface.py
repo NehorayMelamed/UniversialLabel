@@ -10,6 +10,8 @@ from ModelsFactory.Segmentation.SAM2_workspace.sam_2_model import SAM2Segmentati
 from ModelsFactory.Segmentation.SAM_workspace.sam_model import SegmentationBaseModel, SAMSegmentation
 from ModelsFactory.Segmentation.open_earth_map_workspace.open_earth_map_model import OpenEarthMapModel
 from ModelsFactory.Segmentation.DINO_x_workspace.dino_x_segmentation_model import DINOXSegmentation
+from ModelsFactory.Segmentation.SEEM_workspace.seem_model import SEEMSegmentation
+
 import os
 
 
@@ -61,6 +63,11 @@ class FactorySegmentationInterface(FactoryModelInterface):
         elif model_type == ModelNameRegistrySegmentation.SAM2.value:
             model = SAM2Segmentation(checkpoint_path=ConfigParameters.SAM2_THIN_PT.value,
                                      model_cfg=ConfigParameters.SAM2_THIN_CONFIG.value)
+            model.init_model()
+            return model
+        elif model_type == ModelNameRegistrySegmentation.SEEM.value:
+            model = SEEMSegmentation(checkpoint_path=ConfigParameters.SEEM_WEIGHTS_FILE_PATH.value,
+                                     model_cfg=ConfigParameters.SEEM_CONFIG_FILE_PATH.value)
             model.init_model()
             return model
 
