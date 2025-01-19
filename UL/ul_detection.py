@@ -1,3 +1,4 @@
+import json
 import sys
 sys.path.append("../")
 import os
@@ -244,17 +245,31 @@ class ULDetection:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        # Save individual model results
+        # Save individual model results (images and JSON)
         for model_name, result in results.items():
             model_output_dir = os.path.join(output_dir, model_name)
             os.makedirs(model_output_dir, exist_ok=True)
-            output_path = os.path.join(model_output_dir, f"{model_name}_result.jpg")
-            self._save_image_with_boxes(result, output_path, model_name)
 
-        # Save combined NMS results
+            # Save image with bounding boxes
+            image_output_path = os.path.join(model_output_dir, f"{model_name}_result.jpg")
+            self._save_image_with_boxes(result, image_output_path, model_name)
+
+            # Save JSON results
+            json_output_path = os.path.join(model_output_dir, f"{model_name}_result.json")
+            with open(json_output_path, "w") as json_file:
+                json.dump(result, json_file, indent=4)
+            print(f"Saved JSON results for {model_name} to {json_output_path}")
+
+        # Save combined NMS results (image and JSON)
         if 'bboxes' in nms_results and len(nms_results['bboxes']) > 0:
             nms_output_path = os.path.join(output_dir, "nms_result.jpg")
             self._save_image_with_boxes(nms_results, nms_output_path, "NMS")
+
+            # Save NMS results to JSON
+            nms_json_output_path = os.path.join(output_dir, "nms_result.json")
+            with open(nms_json_output_path, "w") as json_file:
+                json.dump(nms_results, json_file, indent=4)
+            print(f"Saved combined NMS JSON results to {nms_json_output_path}")
         else:
             print("No NMS results to save.")
 
@@ -299,7 +314,6 @@ if __name__ == "__main__":
         class_priorities={},
         model_priorities={ModelNameRegistryDetection.YOLO_WORLD.value: 2, ModelNameRegistryDetection.OPENGEOS.value: 1},
         use_nms=True,
-        sahi_models_params=sahi_model_params,
         model_names=[ModelNameRegistryDetection.YOLO_WORLD.value,  #, ModelNameRegistryDetection.OPENGEOS.value,
                      ModelNameRegistryDetection.DINOX_DETECTION.value,
                      ModelNameRegistryDetection.TREX2.value,
