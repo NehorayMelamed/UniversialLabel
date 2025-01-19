@@ -86,6 +86,7 @@ class ULSegmentation:
 
     def _load_models(self, model_names: List[Union[str, ModelNameRegistrySegmentation]]) -> List:
         """Load the models from the factory."""
+        print("loading models, its may take a while")
         models = []
         for model_name in model_names:
             model = self.factory.create_model(model_name)
@@ -170,13 +171,14 @@ if __name__ == "__main__":
     ul_segmentation = ULSegmentation(
         image_input=image_path,
         segmentation_class=segmentation_classes,
-        model_names=[ModelNameRegistrySegmentation.SAM2.value, ModelNameRegistrySegmentation.DINOX_SEGMENTATION.value],
-        sam2_predict_on_bbox=bounding_boxes
+        model_names=[ModelNameRegistrySegmentation.SAM2.value, ModelNameRegistrySegmentation.DINOX_SEGMENTATION.value, ModelNameRegistrySegmentation.SEEM.value],
+        sam2_predict_on_bbox=bounding_boxes,
+    model_priorities={ModelNameRegistrySegmentation.SEEM.value: 5, ModelNameRegistrySegmentation.DINOX_SEGMENTATION.value: 4}
     )
 
     # Update image, classes, and bounding boxes
-    ul_segmentation.set_image(image_path)
-    ul_segmentation.set_classes(["person", "bicycle"])
+    # ul_segmentation.set_image(image_path)
+    # ul_segmentation.set_classes(["person", "bicycle"])
     # ul_segmentation.set_sam2_bboxes([
     #     np.array([50, 60, 100, 150]),
     #     np.array([200, 220, 300, 350]),
@@ -186,6 +188,6 @@ if __name__ == "__main__":
     formatted_result, individual_results = ul_segmentation.process_image()
 
     # Save results
-    ul_segmentation.save_results(individual_results, "test_output")
+    ul_segmentation.save_results(individual_results, "test_seg_selector_SEEM_|_SAM2_|_DINOX")
 
 
