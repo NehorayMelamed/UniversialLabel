@@ -1,6 +1,5 @@
 import os
 from enum import Enum
-
 from common.general_parameters import WEIGHTS_PATH, BASE_PROJECT_DIRECTORY_PATH
 
 
@@ -22,6 +21,8 @@ class ModelNameRegistrySegmentation(Enum):
     SAM = "SAM"
     OPEN_EARTH_MAP = "OPEN_EARTH_MAP"
     SAM2 = "SAM2"
+    FASTSAM = "FASTSAM"
+    SEEM = "SEEM"
 
 
 
@@ -53,6 +54,8 @@ class ConfigParameters(Enum):
 
     SAM2_PATH_CONFLICT_TO_APPEND = os.path.join(BASE_PROJECT_DIRECTORY_PATH, "ModelsFactory","Segmentation","SAM2_workspace", "git_workspace", "sam2")
 
+    SEEM_WEIGHTS_FILE_PATH = os.path.join(WEIGHTS_PATH, "seem_focall_v1.pt")
+    SEEM_CONFIG_FILE_PATH = os.path.join(BASE_PROJECT_DIRECTORY_PATH, "ModelsFactory", "Segmentation", "SEEM_workspace", "git_workspace", "configs", "seem", "focall_unicl_lang_v1.yaml")
 
     @classmethod
     def has_value(cls, value):
