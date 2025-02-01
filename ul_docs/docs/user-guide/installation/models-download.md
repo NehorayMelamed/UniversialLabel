@@ -13,7 +13,7 @@ To utilize **UniversaLabeler**, pre-trained model checkpoints must be downloaded
 Run the provided script to automatically fetch the required models:
 
 ```bash
-python setup/download_models.py mega.nz/file/AiFzBSDS#BqcKazpnYaS0GR4i2HqHCsenbowzr9KjeQQ9X2VPFHY --mega
+python setup/simply_download_pts.py mega.nz/file/AiFzBSDS#BqcKazpnYaS0GR4i2HqHCsenbowzr9KjeQQ9X2VPFHY --mega
 ```
 
 This script will:
