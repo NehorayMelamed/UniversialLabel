@@ -27,6 +27,7 @@ class RegevDetectionModel(DetectionBaseModel):
         self.inference_results = None
         self.model_name = ModelNameRegistryDetection.YOLO_REGEV.value # Assign model name
 
+
     def init_model(self):
         """
         Initialize the YOLO model for REGEV.
@@ -48,6 +49,9 @@ class RegevDetectionModel(DetectionBaseModel):
         self.prompt = prompt
         if self.model:
             self.model.classes = self.prompt
+
+    def set_advanced_parameters(self):
+        print(f"{self.__class__.__name__} does not have advanced parameters.")
 
     def set_image(self, image: np.ndarray):
         """

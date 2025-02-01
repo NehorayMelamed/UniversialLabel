@@ -38,6 +38,9 @@ class OpenEarthMapModel(SegmentationBaseModel):
     def get_available_classes(cls) -> list:
         return list(cls.CLASS_MAPPING.values())
 
+    def set_advanced_parameters(self):
+        print(f"{self.__class__.__name__} does not have advanced parameters.")
+
     def init_model(self):
         """
         Initialize the OpenEarthMap model.

@@ -44,6 +44,9 @@ class YOLOWorld_Model(DetectionBaseModel):
         if self.model:
             self.model.set_classes(self.prompt)
 
+    def set_advanced_parameters(self):
+        print(f"{self.__class__.__name__} does not have advanced parameters.")
+
     def set_image(self, image: np.ndarray):
         """
         Set the input image for the YOLO-World model to process.

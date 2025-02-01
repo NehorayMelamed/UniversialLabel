@@ -31,6 +31,9 @@ class DetrDetectionModel(DetectionBaseModel):
         self.processor = DetrImageProcessor.from_pretrained(self.processor_path)
         self.model = DetrForObjectDetection.from_pretrained(self.model_path)
 
+    def set_advanced_parameters(self):
+        print(f"{self.__class__.__name__} does not have advanced parameters.")
+
     def set_prompt(self, prompt: List[str]):
         """
         DETR does not use prompts. Method is overridden to maintain compatibility.

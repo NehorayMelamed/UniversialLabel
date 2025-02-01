@@ -24,6 +24,9 @@ class GoogleVisionDetectionModel(DetectionBaseModel):
         self.image = None
         self.model_name = ModelNameRegistryDetection.GOOGLE_VISION.value
 
+    def set_advanced_parameters(self):
+        print(f"{self.__class__.__name__} does not have advanced parameters.")
+
     def init_model(self):
         """
         Initialize the Google Vision API client.

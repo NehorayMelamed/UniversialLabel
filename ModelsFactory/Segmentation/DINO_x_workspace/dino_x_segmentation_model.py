@@ -30,6 +30,9 @@ class DINOXSegmentation(SegmentationBaseModel):
         self.config = Config(self.api_token)
         self.client = Client(self.config)
 
+    def set_advanced_parameters(self):
+        print(f"{self.__class__.__name__} does not have advanced parameters.")
+
     def set_prompt(self, prompt: List[str]):
         """
         Set the text prompts for DINO-X.

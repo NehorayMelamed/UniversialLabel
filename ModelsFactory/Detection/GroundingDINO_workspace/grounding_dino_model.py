@@ -59,6 +59,9 @@ class GroundingDINO_Model(DetectionBaseModel):
         prompt = ". ".join(prompt) + "."
         self.prompt = prompt
 
+    def set_advanced_parameters(self):
+        print(f"{self.__class__.__name__} does not have advanced parameters.")
+
     def set_image(self, image: np.ndarray):
         """
         Set the input image for the GroundingDINO model to process.

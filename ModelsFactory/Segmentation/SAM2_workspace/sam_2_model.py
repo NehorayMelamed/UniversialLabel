@@ -55,6 +55,8 @@ class SAM2Segmentation(SegmentationBaseModel):
         self.max_hole_area = max_hole_area
         self.max_sprinkle_area = max_sprinkle_area
         print(f"Advanced parameters set: mask_threshold={mask_threshold}, max_hole_area={max_hole_area}, max_sprinkle_area={max_sprinkle_area}")
+        print("Building sam with new parameters")
+        self.init_model()
 
     def set_prompt(self, prompt: str):
         """

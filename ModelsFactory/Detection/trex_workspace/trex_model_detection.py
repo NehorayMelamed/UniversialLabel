@@ -30,6 +30,9 @@ class TRex2DetectionModel(DetectionBaseModel):
         """
         self.trex2_api = TRex2APIWrapper(self.token)
 
+    def set_advanced_parameters(self):
+        print(f"{self.__class__.__name__} does not have advanced parameters.")
+
     def set_prompt(self, categories_with_boxes: Dict[str, List[List[int]]]):
         """
         Set prompts for T-Rex2 using a dictionary of category names and bounding boxes.

@@ -53,6 +53,16 @@ class BaseModel(ABC):
         """
         raise NotImplementedError("Subclasses should implement this method.")
 
+
+    @abstractmethod
+    def set_advanced_parameters(self, **kwargs):
+        """
+        set advanced parameters for the model
+        Should be overridden by subclasses.
+        """
+        raise NotImplementedError("Subclasses should implement this method.")
+
+
     def validate_prompt(self, prompts):
         """
         Validate that the prompts are a list of strings.

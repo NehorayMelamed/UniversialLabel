@@ -43,6 +43,9 @@ class DINOXDetection(DetectionBaseModel):
         prompts_str = ". ".join(prompt) + "."
         self.prompts = [TextPrompt(text=prompts_str)]
 
+    def set_advanced_parameters(self):
+        print(f"{self.__class__.__name__} does not have advanced parameters.")
+
     def set_image(self, image: np.ndarray):
         """
         Upload the input image to the DDS Cloud API.

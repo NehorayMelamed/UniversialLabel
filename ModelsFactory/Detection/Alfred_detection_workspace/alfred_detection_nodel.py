@@ -28,6 +28,9 @@ class AlfredDetectionModel(DetectionBaseModel):
         if self.verbose:
             print(f"Initialized {self.model_name} model with weights: {self.model_path}")
 
+    def set_advanced_parameters(self):
+        print(f"{self.__class__.__name__} does not have advanced parameters.")
+
     def set_prompt(self, prompt: List[str]):
         """
         Set the custom classes or prompt for object detection.
