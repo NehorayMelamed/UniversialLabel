@@ -1,5 +1,5 @@
 site_name: "UniversaLabeler Documentation"
-site_url: ""
+site_url: ''
 repo_url: "https://github.com/NehorayMelamed/UniversialLabel"
 theme:
   name: "material"
