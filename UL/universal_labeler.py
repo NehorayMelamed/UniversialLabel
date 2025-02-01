@@ -13,6 +13,7 @@ class UniversalLabeler(ABC):
         """
         raise NotImplementedError(f"{self.__class__.__name__} does not support functionality.")
 
+
     @abstractmethod
     def _create_models(self):
         """
