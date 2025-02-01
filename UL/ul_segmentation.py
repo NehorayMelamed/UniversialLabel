@@ -40,7 +40,7 @@ class ULSegmentation:
         if ModelNameRegistrySegmentation.SAM2.value not in model_names and sam2_predict_on_bbox is not None:
             model_names.append(ModelNameRegistrySegmentation.SAM2.value)
 
-        self.models = self._load_models(model_names)
+        self.models: List[SegmentationBaseModel] = self._load_models(model_names)
 
         # Initialize SegSelector
         self.seg_selector = SegSelector()
@@ -60,6 +60,16 @@ class ULSegmentation:
         for model in self.models:
             model.set_prompt(self.segmentation_class)
         print("Segmentation classes updated.")
+
+    def set_models_advanced_params(self, params: Dict):
+        for model in self.models:
+            model_name = model.model_name  # Get the class name of the model
+            if model_name in params:
+                model_params = params[model_name]  # Get parameters for this specific model
+
+                # Call function dynamically with correct parameters
+                model.set_advanced_parameters(**model_params)
+
 
     def set_sam2_bboxes(self, bounding_boxes: List[np.ndarray]):
         """Update bounding boxes for SAM2 predictions."""
@@ -87,7 +97,7 @@ class ULSegmentation:
     def _load_models(self, model_names: List[Union[str, ModelNameRegistrySegmentation]]) -> List:
         """Load the models from the factory."""
         print("loading models, its may take a while")
-        models = []
+        models: List[SegmentationBaseModel] = []
         for model_name in model_names:
             model = self.factory.create_model(model_name)
             model.init_model()
@@ -171,8 +181,8 @@ if __name__ == "__main__":
     ul_segmentation = ULSegmentation(
         image_input=image_path,
         segmentation_class=segmentation_classes,
-        model_names=[ModelNameRegistrySegmentation.SAM2.value, ModelNameRegistrySegmentation.DINOX_SEGMENTATION.value, ModelNameRegistrySegmentation.SEEM.value],
-        sam2_predict_on_bbox=bounding_boxes,
+        model_names=[ModelNameRegistrySegmentation.SAM2.value, ModelNameRegistrySegmentation.DINOX_SEGMENTATION.value], #, ModelNameRegistrySegmentation.SEEM.value
+        # sam2_predict_on_bbox=bounding_boxes,
     model_priorities={ModelNameRegistrySegmentation.SEEM.value: 5, ModelNameRegistrySegmentation.DINOX_SEGMENTATION.value: 4}
     )
 
@@ -184,10 +194,19 @@ if __name__ == "__main__":
     #     np.array([200, 220, 300, 350]),
     # ])
 
+    advanced_params = {
+        ModelNameRegistrySegmentation.SAM2.value: {
+            "mask_threshold":  20,
+            "max_hole_area":  20,
+            "max_sprinkle_area": 20
+        }
+    }
+
+    ul_segmentation.set_models_advanced_params(advanced_params)
     # Process the image
     formatted_result, individual_results = ul_segmentation.process_image()
 
     # Save results
-    ul_segmentation.save_results(individual_results, "test_seg_selector_SEEM_|_SAM2_|_DINOX")
+    ul_segmentation.save_results(individual_results, "SEEM_|_SAM2_|_DINOX")
 
 
