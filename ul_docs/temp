@@ -1,0 +1,19 @@
+wihtou examples
+and also add the segmentations section anc the cobination between the segmenation and detection
+
+also start with that the project includes 3 main tasks, the detection the segmentation and the image caption, wiht combining we receiev a powerfull results and we able to build c complete and difficult piplines wuithin thos tasks togeter
+
+
+אפשר להסביר את זה בצ ורה של SECTIONS ושיש כמה שכבות של עיבוד מידע
+
+השכבה העיקרית זה זו של המודלים שבסוף מוציאים את התוצאות של כל מודל
+ שמעליהם ומתחתיהם יש לנו כמה שכבות של עיבוד
+תציג בבקשה שיש לנו שלושה פעולות עיקריות
+SEGMENTAITON DETECTION CAPTION
+כאשר אנחנו מייצאים לכל אחד מהם ממשק אחיד ויודעים לעבוד עם כל מודל מבין עשרות המודלים בצורה אחידה, מה שנותן לנו לשלוט ביתרונות של כל מודל במהירות בונוחות, ובאמצעות היכולת לדעת במה כל מודל יותר טוב, אנחנו מצליחים לחלק את המשימה שנקראת "תיוג תמונה"  לתתי משימות להצליח להבין מה הפרמטרים (אם זה בצורה אוטומטית או באמצעות המשתמש) ומצליחים לעבור 5 שכבות של עיבוד מידע שנפרט בהמשך ולהוציא למשתמש את התוצאות המתאימות ביותר
+
+
+הפרוייקט מנסה להנגיש אחידות בין השכבות ולהצליח לגרום לכך שמשימות שונות שלא אמורות לתקשר אחת עם השניה, יצליח לעבוד ביחד בצורה מהירה ואופטימלית
+
+דוגמאות להרכבה של משימות מודליות שעובדות ביחד ומפיקות תוצאות חדשות:
+היכולת לקחת מודל שמייצא תוצאה של סגמנטציה 
